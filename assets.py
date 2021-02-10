@@ -1,27 +1,40 @@
+import sys
+from datetime import datetime
+
 import numpy as np
 import pandas as pd
 import requests
 from epw import epw
-import sys
 
 
-
-def download_epw(lat, lon,year, location,  attributes,  interval, utc, your_name, api_key,reason_for_use, your_affiliation, your_email, mailing_list, leap_year):
+def download_epw(lat, lon, year, location, attributes, interval, utc, your_name, api_key, reason_for_use, your_affiliation, your_email, mailing_list, leap_year):
     # Declare url string
+
     url = 'https://developer.nrel.gov/api/solar/nsrdb_psm3_download.csv?wkt=POINT({lon}%20{lat})&names={year}&leap_day={leap}&interval={interval}&utc={utc}&full_name={name}&email={email}&affiliation={affiliation}&mailing_list={mailing_list}&reason={reason}&api_key={api}&attributes={attr}'.format(
             year=year, lat=lat, lon=lon, leap=leap_year, interval=interval, utc=utc, name=your_name, email=your_email, mailing_list=mailing_list, affiliation=your_affiliation,
             reason=reason_for_use, api=api_key, attr=attributes)
 
+
+
+
+
+
     df = pd.DataFrame()
+
+
 
     try:
         r = requests.get(url, timeout=3)
         r.raise_for_status()
+
+        # Return just the first 2 lines to get metadata:
+        all = pd.read_csv(url)
+
+        metadata = all.iloc[0,:]
+
         # Return all but first 2 lines of csv to get data:
-        df = pd.read_csv(
-                'https://developer.nrel.gov/api/nsrdb/v2/solar/psm3-download.csv?wkt=POINT({lon}%20{lat})&names={year}&leap_day={leap}&interval={interval}&utc={utc}&full_name={name}&email={email}&affiliation={affiliation}&mailing_list={mailing_list}&reason={reason}&api_key={api}&attributes={attr}'.format(
-                        year=year, lat=lat, lon=lon, leap=leap_year, interval=interval, utc=utc, name=your_name, email=your_email, mailing_list=mailing_list, affiliation=your_affiliation,
-                        reason=reason_for_use, api=api_key, attr=attributes), skiprows=2)
+        df = all.iloc[2:,:]
+        df.columns = all.iloc[1]
         # Set the time index in the pandas dataframe:
         df = df.set_index(pd.date_range('1/1/{yr}'.format(yr=year), freq=interval + 'Min', periods=525600 / int(interval)))
 
@@ -38,15 +51,19 @@ def download_epw(lat, lon,year, location,  attributes,  interval, utc, your_name
 
     a = epw()
     epw_df = a.dataframe
+
+    # See metadata for specified properties, e.g., timezone and elevation
+    timezone, elevation, location_id = metadata['Local Time Zone'], metadata['Elevation'], metadata['Location ID']
+
     a.headers = {'LOCATION'                 : [location,
-                                               'XX',
-                                               'XX',
+                                               'STATE',
+                                               'COUNTRY',
                                                'NREL PSM3',
                                                'XXX',
                                                lat,
                                                lon,
-                                               'XX',
-                                               'XXX'],
+                                               timezone,
+                                               elevation],
                  'DESIGN CONDITIONS'        : ['1',
                                                'Climate Design Data 2009 ASHRAE Handbook',
                                                '',
@@ -192,10 +209,21 @@ def download_epw(lat, lon,year, location,  attributes,  interval, utc, your_name
                                                '13.60'],
                  'HOLIDAYS/DAYLIGHT SAVINGS': ['No', '0', '0', '0'],
                  'COMMENTS 1'               : ['NREL PSM3 DATA'],
-                 'COMMENTS 2'               : [''],
+                 'COMMENTS 2'               : ['https://github.com/kastnerp/NREL-PSB3-2-EPW'],
                  'DATA PERIODS'             : ['1', '1', 'Data', 'Sunday', ' 1/ 1', '12/31']}
 
     # Actual file starts here
+
+
+    dt = pd.date_range(datetime(int(year), 1, 1, 0, 00), datetime(int(year), 12, 31, 23, 00), freq="60min")
+    missing_values = np.array(np.ones(8760) * 999999).astype(int)
+
+    epw_df['Year'] = dt.year.astype(int)
+    epw_df['Month'] = dt.month.astype(int)
+    epw_df['Day'] = dt.day.astype(int)
+    epw_df['Hour'] = dt.hour.astype(int) + 1
+    epw_df['Minute'] = dt.minute.astype(int)
+    epw_df['Data Source and Uncertainty Flags'] = missing_values
 
     epw_df['Dry Bulb Temperature'] = df['Temperature'].values.flatten()
 
@@ -204,20 +232,20 @@ def download_epw(lat, lon,year, location,  attributes,  interval, utc, your_name
     epw_df['Relative Humidity'] = df['Relative Humidity'].values.flatten()
 
     epw_df['Atmospheric Station Pressure'] = df['Pressure'].values.flatten()
-    epw_df['Extraterrestrial Horizontal Radiation'] = np.array(np.zeros(8760)).astype(int)
+    epw_df['Extraterrestrial Horizontal Radiation'] = missing_values
     #
-    epw_df['Extraterrestrial Direct Normal Radiation'] = np.array(np.zeros(8760)).astype(int)
+    epw_df['Extraterrestrial Direct Normal Radiation'] = missing_values
     #
-    epw_df['Horizontal Infrared Radiation Intensity'] = np.array(np.zeros(8760)).astype(int)
+    epw_df['Horizontal Infrared Radiation Intensity'] = missing_values
     #
     epw_df['Global Horizontal Radiation'] = df['GHI'].values.flatten()
     epw_df['Direct Normal Radiation'] = df['DNI'].values.flatten()
     epw_df['Diffuse Horizontal Radiation'] = df['DHI'].values.flatten()
 
-    epw_df['Global Horizontal Illuminance'] = np.array(np.zeros(8760)).astype(int)
-    epw_df['Direct Normal Illuminance'] = np.array(np.zeros(8760)).astype(int)
-    epw_df['Diffuse Horizontal Illuminance'] = np.array(np.zeros(8760)).astype(int)
-    epw_df['Zenith Luminance'] = np.array(np.zeros(8760)).astype(int)
+    epw_df['Global Horizontal Illuminance'] = missing_values
+    epw_df['Direct Normal Illuminance'] = missing_values
+    epw_df['Diffuse Horizontal Illuminance'] = missing_values
+    epw_df['Zenith Luminance'] = missing_values
 
     epw_df['Wind Direction'] = df['Wind Direction'].values.flatten().astype(int)
     epw_df['Wind Speed'] = df['Wind Speed'].values.flatten()
@@ -227,22 +255,24 @@ def download_epw(lat, lon,year, location,  attributes,  interval, utc, your_name
     epw_df['Opaque Sky Cover'] = df['Cloud Type'].values.flatten()
     #
 
-    epw_df['Visibility'] = np.array(np.zeros(8760)).astype(int)
-    epw_df['Ceiling Height'] = np.array(np.zeros(8760)).astype(int)
-    epw_df['Present Weather Observation'] = np.array(np.zeros(8760)).astype(int)
+    epw_df['Visibility'] = missing_values
+    epw_df['Ceiling Height'] = missing_values
+    epw_df['Present Weather Observation'] = missing_values
     #
-    epw_df['Present Weather Codes'] = np.array(np.zeros(8760)).astype(int)
+    epw_df['Present Weather Codes'] = missing_values
     epw_df['Precipitable Water'] = df['Precipitable Water'].values.flatten()
-    epw_df['Aerosol Optical Depth'] = np.array(np.zeros(8760)).astype(int)
+    epw_df['Aerosol Optical Depth'] = missing_values
     #
-    epw_df['Snow Depth'] = np.array(np.zeros(8760)).astype(int)
-    epw_df['Days Since Last Snowfall'] = np.array(np.zeros(8760)).astype(int)
+    epw_df['Snow Depth'] = missing_values
+    epw_df['Days Since Last Snowfall'] = missing_values
     epw_df['Albedo'] = df['Surface Albedo'].values.flatten()
     #
 
-    epw_df['Liquid Precipitation Depth'] = np.array(np.zeros(8760)).astype(int)
-    epw_df['Liquid Precipitation Quantity'] = np.array(np.zeros(8760)).astype(int)
+    epw_df['Liquid Precipitation Depth'] = missing_values
+    epw_df['Liquid Precipitation Quantity'] = missing_values
+
+    a.dataframe = epw_df
 
     file_name = str(location) + "_" + str(year) + '.epw'
     a.write(file_name)
-    print("Success: File",file_name, "written")
+    print("Success: File", file_name, "written")
