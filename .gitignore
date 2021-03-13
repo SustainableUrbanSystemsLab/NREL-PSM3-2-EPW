@@ -126,3 +126,6 @@ dmypy.json
 
 api_key
 *.epw
+
+.idea/
+__pycache__/
