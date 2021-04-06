@@ -1,12 +1,8 @@
 import streamlit as st
-import random
-from datetime import datetime
-from os.path import basename
+
 from assets import download_epw
 import base64
-import pandas as pd
 
-random.seed(datetime.today().date())
 
 
 
