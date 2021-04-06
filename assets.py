@@ -17,6 +17,8 @@ def download_epw(lat, lon, year, location, attributes, interval, utc, your_name,
 
     df = pd.DataFrame()
 
+    metadata = None
+
     try:
         r = requests.get(url, timeout=3)
         r.raise_for_status()
@@ -48,7 +50,9 @@ def download_epw(lat, lon, year, location, attributes, interval, utc, your_name,
     epw_df = a.dataframe
 
     # See metadata for specified properties, e.g., timezone and elevation
-    timezone, elevation, location_id = metadata['Local Time Zone'], metadata['Elevation'], metadata['Location ID']
+    timezone =  elevation =  location_id = "Could not be retrieved from NREL"
+    if metadata is not None:
+        timezone, elevation, location_id = metadata['Local Time Zone'], metadata['Elevation'], metadata['Location ID']
 
     a.headers = {'LOCATION': [location,
                               'STATE',
