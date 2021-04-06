@@ -245,7 +245,7 @@ def download_epw(lat, lon, year, location, attributes, interval, utc, your_name,
     epw_df['Diffuse Horizontal Illuminance'] = missing_values
     epw_df['Zenith Luminance'] = missing_values
 
-    epw_df['Wind Direction'] = df['Wind Direction'].values.flatten().astype(int)
+    epw_df['Wind Direction'] = df['Wind Direction'].values.flatten()
     epw_df['Wind Speed'] = df['Wind Speed'].values.flatten()
 
     epw_df['Total Sky Cover'] = df['Cloud Type'].values.flatten()
