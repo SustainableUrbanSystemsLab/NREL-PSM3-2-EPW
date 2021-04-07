@@ -16,7 +16,7 @@ This script converts climate data from NREL to the EnergyPlus EPW format.
 If you do not have an API key, feel free to request one [here](https://developer.nrel.gov/signup).
 '''
 
-api_key = st.text_input('Please provide your own api key here:', value="4rUs6lRmcQpBYfDVpSLGjzm0uezxwM20a46Ecorh",
+api_key = st.text_input('Please provide your own api key here:', 
                         max_chars=None, key="2", type='default')
 
 '''
