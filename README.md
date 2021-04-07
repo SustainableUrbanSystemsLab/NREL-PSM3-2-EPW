@@ -1,5 +1,5 @@
-# NREL-PSB3-2-EPW
- A script that writes out epw files from NREL PSB3 data
+# NREL-PSM3-2-EPW
+ A script that writes out epw files from NREL PSM3 data
 
 # Demo
 
