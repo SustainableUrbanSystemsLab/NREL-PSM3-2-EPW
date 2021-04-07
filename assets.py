@@ -4,19 +4,22 @@ import numpy as np
 import pandas as pd
 import requests
 from epw import epw
-import streamlit as st
+from datetime import datetime
+import calendar
 
 
 def download_epw(lat, lon, year, location, attributes, interval, utc, your_name, api_key, reason_for_use,
                  your_affiliation, your_email, mailing_list, leap_year):
-    # Declare url string
+    currentYear = datetime.now().year
+    if int(year) == currentYear:
+        raise Exception("NREL does not provide data for the current year " + str(
+            year) + ". It is also unlikely that there is data availability for " + str(int(year) - 1) + ".")
 
+    # Declare url string
     url = 'https://developer.nrel.gov/api/solar/nsrdb_psm3_download.csv?wkt=POINT({lon}%20{lat})&names={year}&leap_day={leap}&interval={interval}&utc={utc}&full_name={name}&email={email}&affiliation={affiliation}&mailing_list={mailing_list}&reason={reason}&api_key={api}&attributes={attr}'.format(
         year=year, lat=lat, lon=lon, leap=leap_year, interval=interval, utc=utc, name=your_name, email=your_email,
         mailing_list=mailing_list, affiliation=your_affiliation,
         reason=reason_for_use, api=api_key, attr=attributes)
-
-
 
     r = None
     all_data = None
@@ -45,8 +48,12 @@ def download_epw(lat, lon, year, location, attributes, interval, utc, your_name,
     except requests.exceptions.RequestException as err:
         print("OOps: Something Else", err)
 
+    hours_per_year = 8760
 
-    datetimes = pd.date_range('01/01/' + str(year), periods=8760, freq='H')
+    if calendar.isleap(int(year)) and bool(leap_year) is True and all_data.shape[0] == 8784+2:
+        hours_per_year = 8784
+
+    datetimes = pd.date_range('01/01/' + str(year), periods=hours_per_year, freq='H')
 
     # Take first row for metadata
     metadata = all_data.iloc[0, :]
@@ -218,13 +225,13 @@ def download_epw(lat, lon, year, location, attributes, interval, utc, your_name,
                                 '13.60'],
         'HOLIDAYS/DAYLIGHT SAVINGS': ['No', '0', '0', '0'],
         'COMMENTS 1': ['NREL PSM3 DATA'],
-        'COMMENTS 2': ['https://github.com/kastnerp/NREL-PSM3-2-EPW'],
+        'COMMENTS 2': ['https://bit.ly/NREL--PSM3-2-EPW'],
         'DATA PERIODS': ['1', '1', 'Data', 'Sunday', ' 1/ 1', '12/31']
     }
 
     # Actual file starts here
 
-    missing_values = np.array(np.ones(8760) * 999999).astype(int)
+    missing_values = np.array(np.ones(hours_per_year) * 999999).astype(int)
 
     # st.write(df.index)
     epw_df = pd.DataFrame()
