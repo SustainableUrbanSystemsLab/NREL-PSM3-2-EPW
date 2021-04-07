@@ -1,7 +1,7 @@
 from assets import download_epw
 
-lat, lon = 42.434269, -76.500354
-location = "Ithaca"
+lat, lon = 40.755840, -73.982684
+location = "NYC"
 year = '2019'
 attributes = 'air_temperature,clearsky_dhi,clearsky_dni,clearsky_ghi,cloud_type,dew_point,dhi,dni,fill_flag,ghi,' \
              'relative_humidity,solar_zenith_angle,surface_albedo,surface_pressure,total_precipitable_water,' \

@@ -1,20 +1,26 @@
-import streamlit as st
 from assets import download_epw
 import base64
+import json
+import pickle
+import uuid
+import re
+import streamlit as st
+import pandas as pd
+import os
 
 # Draw a title and some text to the app:
 '''
-# NREL-PSB3-2-EPW
+# NREL-PSM3-2-EPW
 
 This script converts climate data from NREL to the EnergyPlus EPW format.  
 If you do not have an API key, feel free to request one [here](https://developer.nrel.gov/signup).
 '''
 
-api_key = st.text_input('Please provide your own api key here.', value="4rUs6lRmcQpBYfDVpSLGjzm0uezxwM20a46Ecorh",
+api_key = st.text_input('Please provide your own api key here:', value="4rUs6lRmcQpBYfDVpSLGjzm0uezxwM20a46Ecorh",
                         max_chars=None, key="2", type='default')
 
 '''
-Please provide Lat, Lon, Location, and Year.
+Please provide _Lat_, _Lon_, _Location_, and _Year_.
 '''
 
 lat = st.text_input('Lat:', value=42.434269, max_chars=None, key="2", type='default')
@@ -40,17 +46,6 @@ your_email = "Joe@Doe.edu"
 mailing_list = 'false'
 leap_year = 'true'
 
-epw = None
-
-import base64
-import os
-import json
-import pickle
-import uuid
-import re
-
-import streamlit as st
-import pandas as pd
 
 
 def download_button(object_to_download, download_filename, button_text, pickle_it=False):
@@ -135,24 +130,28 @@ def download_button(object_to_download, download_filename, button_text, pickle_i
     return dl_link
 
 
-d = "_"
-file_name = str(location) + d + str(lat) + d + str(lon) + d + str(year) + '.epw'
 
 if st.button('Request from NREL'):
 
     if api_key is not "":
-        st.write("Retrieving data from NREL...")
+        st.write("Requesting data from NREL...")
 
-        download_epw(float(lat), float(lon), int(year), location, attributes, interval, utc, your_name, api_key,
+        file_name = download_epw(float(lat), float(lon), int(year), location, attributes, interval, utc, your_name, api_key,
                      reason_for_use,
                      your_affiliation,
                      your_email, mailing_list, leap_year)
 
-        with open(file_name, 'rb') as f:
-            s = f.read()
 
-        download_button_str = download_button(s, file_name,
+        if os.path.exists(file_name):
+            with open(file_name, 'rb') as f:
+                s = f.read()
+
+                download_button_str = download_button(s, file_name,
                                               'Download EPW')
-        st.markdown(download_button_str, unsafe_allow_html=True)
+                st.markdown(download_button_str, unsafe_allow_html=True)
+
+        else:
+            st.write("Please make sure that NREL is able to deliver data for the location and year your provided.")
+
 
 st.stop()
