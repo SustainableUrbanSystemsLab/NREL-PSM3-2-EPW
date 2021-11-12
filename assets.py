@@ -25,15 +25,14 @@ def download_epw(lat, lon, year, location, attributes, interval, utc, your_name,
     all_data = None
 
     try:
-        r = requests.get(url, timeout=5)
+        r = requests.get(url, timeout=20)
         r.raise_for_status()
 
         # Return just the first 2 lines to get metadata:
         all_data = pd.read_csv(url)
 
-        if all_data.empty:
-            print("Could not retrieve any data")
-            return
+        if all_data is None:
+            raise("Could not retrieve any data")
 
 
 

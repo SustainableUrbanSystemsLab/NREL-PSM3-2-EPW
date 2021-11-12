@@ -18,7 +18,7 @@ If you do not have an API key, feel free to request one [here](https://developer
 '''
 
 api_key = st.text_input('Please provide your own api key here:',
-                        max_chars=None, key="2", type='default')
+                        max_chars=None, key="2", type="password")
 
 '''
 Please provide _Lat_, _Lon_, _Location_, and _Year_.
