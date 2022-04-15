@@ -129,3 +129,5 @@ api_key
 
 .idea/
 __pycache__/
+*.bak
+.vscode/settings.json
