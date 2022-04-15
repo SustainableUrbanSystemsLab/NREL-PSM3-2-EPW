@@ -3,5 +3,3 @@ numpy
 pandas
 requests
 datetime
-calendar
-csv
