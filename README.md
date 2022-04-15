@@ -7,5 +7,5 @@
 
 # How to use
 
-- Place your [API key](https://developer.nrel.gov/signup/) in a file called `api_key`  in the working directory
-- Make adjustments to `download_epw.py` and run the file
+- Place your [API key](https://developer.nrel.gov/signup/) in a file called `api_key`  in the tests directory
+- Make adjustments to `test_download.py` and run the file

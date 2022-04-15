@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import pandas as pd
 import requests
-from epw import epw
+from . import epw
 from datetime import datetime
 import calendar
 
@@ -34,8 +34,6 @@ def download_epw(lat, lon, year, location, attributes, interval, utc, your_name,
         if all_data is None:
             raise("Could not retrieve any data")
 
-
-
     except requests.exceptions.HTTPError as errh:
         print("Http Error:", errh)
         [print(err) for err in r.json()['errors']]
@@ -52,7 +50,8 @@ def download_epw(lat, lon, year, location, attributes, interval, utc, your_name,
     if calendar.isleap(int(year)) and bool(leap_year) is True and all_data.shape[0] == 8784+2:
         hours_per_year = 8784
 
-    datetimes = pd.date_range('01/01/' + str(year), periods=hours_per_year, freq='H')
+    datetimes = pd.date_range('01/01/' + str(year),
+                              periods=hours_per_year, freq='H')
 
     # Take first row for metadata
     metadata = all_data.iloc[0, :]
@@ -66,9 +65,10 @@ def download_epw(lat, lon, year, location, attributes, interval, utc, your_name,
     # See metadata for specified properties, e.g., timezone and elevation
     timezone = elevation = location_id = "Could not be retrieved from NREL"
     if metadata is not None:
-        timezone, elevation, location_id = metadata['Local Time Zone'], metadata['Elevation'], metadata['Location ID']
+        timezone, elevation, location_id = metadata[
+            'Local Time Zone'], metadata['Elevation'], metadata['Location ID']
 
-    out = epw()
+    out = epw.EPW()
     out.headers = {
         'LOCATION': [location,
                      'STATE',
@@ -290,7 +290,8 @@ def download_epw(lat, lon, year, location, attributes, interval, utc, your_name,
     out.dataframe = epw_df
 
     d = "_"
-    file_name = str(location) + d + str(lat) + d + str(lon) + d + str(year) + '.epw'
+    file_name = str(location) + d + str(lat) + d + \
+        str(lon) + d + str(year) + '.epw'
 
     out.write(file_name)
     print("Success: File", file_name, "written")

@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-
 import pandas as pd
 import csv
 
-class epw():
+class EPW():
     """A class which represents an EnergyPlus weather (epw) file
     """
     

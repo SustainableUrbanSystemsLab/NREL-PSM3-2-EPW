@@ -1,4 +1,4 @@
-from assets import download_epw
+from nrel_psm3_2_epw.assets import download_epw 
 import base64
 import json
 import pickle
@@ -133,7 +133,7 @@ def download_button(object_to_download, download_filename, button_text, pickle_i
 
 if st.button('Request from NREL'):
 
-    if api_key is not "":
+    if api_key != "":
 
         currentYear = datetime.now().year
         if int(year) == currentYear:
