@@ -18,17 +18,16 @@ If you do not have an API key, feel free to request one [here](https://developer
 '''
 
 api_key = st.text_input('Please provide your own api key here:',
-                        max_chars=None, key="2", type="password")
+                        max_chars=None, type="password")
 
 '''
 Please provide _Lat_, _Lon_, _Location_, and _Year_.
 '''
 
-lat = st.text_input('Lat:', value=42.434269, max_chars=None, key="2", type='default')
-lon = st.text_input('Lon:', value=-76.500354, max_chars=None, key="2", type='default')
-location = st.text_input('Location (just used to name the file):', value="Ithaca", max_chars=None, key="2",
-                         type='default')
-year = st.text_input('Year:', value=2019, max_chars=None, key="2", type='default')
+lat = st.text_input('Lat:', value=42.434269, max_chars=None,  type='default')
+lon = st.text_input('Lon:', value=-76.500354, max_chars=None,  type='default')
+location = st.text_input('Location (just used to name the file):', value="Ithaca", max_chars=None, type='default')
+year = st.text_input('Year:', value=2019, max_chars=None,  type='default')
 
 # lat, lon = 42.434269, -76.500354
 # location = "Ithaca"
