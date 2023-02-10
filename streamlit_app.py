@@ -135,7 +135,7 @@ if st.button('Request from NREL'):
     if api_key != "":
 
         currentYear = datetime.now().year
-        if int(year) == currentYear:
+        if int(year) == currentYear or int(year) == currentYear-1:
             st.write("NREL does not provide data for the current year " + str(
                 year) + ". It is also unlikely that there is data availability for " + str(int(year) - 1) + ".")
             st.stop()

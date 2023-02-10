@@ -11,7 +11,7 @@ import calendar
 def download_epw(lat, lon, year, location, attributes, interval, utc, your_name, api_key, reason_for_use,
                  your_affiliation, your_email, mailing_list, leap_year):
     currentYear = datetime.now().year
-    if int(year) == currentYear:
+    if int(year) == currentYear or int(year) == currentYear-1:
         raise Exception("NREL does not provide data for the current year " + str(
             year) + ". It is also unlikely that there is data availability for " + str(int(year) - 1) + ".")
 

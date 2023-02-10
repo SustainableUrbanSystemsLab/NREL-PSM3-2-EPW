@@ -17,7 +17,7 @@ def test_download_epw():
     your_name = "John+Doe"
 
     cwd = Path.cwd()
-    api_key_file_path = cwd / Path("tests/api_key")
+    api_key_file_path = cwd / Path("api_key")
 
     if api_key_file_path.is_file():
         api_key_file = open(api_key_file_path, 'r')

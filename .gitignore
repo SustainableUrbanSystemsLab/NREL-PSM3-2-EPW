@@ -131,3 +131,4 @@ api_key
 __pycache__/
 *.bak
 .vscode/settings.json
+run_act_test.bat
