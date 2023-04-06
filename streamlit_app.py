@@ -141,7 +141,7 @@ if st.button('Request from NREL'):
             st.stop()
         elif int(year) < 1998:
             st.write("NREL does not provide data for the year " + str(
-                year) + ".")
+                year) + ". The earliest year data is available for is 1998.")
             st.stop()
 
         st.write("Requesting data from NREL...")
