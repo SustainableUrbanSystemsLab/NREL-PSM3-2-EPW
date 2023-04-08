@@ -129,40 +129,31 @@ def download_button(object_to_download, download_filename, button_text, pickle_i
 
     return dl_link
 
-
 if st.button('Request from NREL'):
-
-    if api_key != "":
-
-        currentYear = datetime.now().year
-        if int(year) == currentYear or int(year) == currentYear-1:
-            st.write("NREL does not provide data for the current year " + str(
-                year) + ". It is also unlikely that there is data availability for " + str(int(year) - 1) + ".")
+    if api_key == "":
+        st.write("Please provide a valid API key.")
+    else:
+        current_year = datetime.now().year
+        if int(year) in (current_year, current_year - 1):
+            st.write(f"NREL does not provide data for the current year {year}. "
+                     f"It is also unlikely that there is data availability for {int(year) - 1}.")
             st.stop()
         elif int(year) < 1998:
-            st.write("NREL does not provide data for the year " + str(
-                year) + ". The earliest year data is available for is 1998.")
+            st.write(f"NREL does not provide data for the year {year}. "
+                     f"The earliest year data is available for is 1998.")
             st.stop()
 
         st.write("Requesting data from NREL...")
 
         file_name = download_epw(float(lat), float(lon), int(year), location, attributes, interval, utc, your_name,
-                                 api_key,
-                                 reason_for_use,
-                                 your_affiliation,
-                                 your_email, mailing_list, leap_year)
+                                 api_key, reason_for_use, your_affiliation, your_email, mailing_list, leap_year)
 
         if os.path.exists(file_name):
             with open(file_name, 'rb') as f:
                 s = f.read()
-
-                download_button_str = download_button(s, file_name,
-                                                      'Download EPW')
+                download_button_str = download_button(s, file_name, 'Download EPW')
                 st.markdown(download_button_str, unsafe_allow_html=True)
-
         else:
             st.write("Please make sure that NREL is able to deliver data for the location and year your provided.")
+    st.stop()
 
-    else:
-        st.write("Please provide a valid API key.")
-st.stop()
