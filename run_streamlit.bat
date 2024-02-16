@@ -1,2 +1,2 @@
-call "C:\Users\pkastner\Anaconda3\Scripts\activate.bat" datascience
+call ".\env\Scripts\activate.bat" env
 streamlit run %~dp0streamlit_app.py
