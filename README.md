@@ -5,7 +5,7 @@
 
 - [Link to demo](https://nrel-psm3-2-epw-2djuwytnlpmk4fmsfai74g.streamlit.app/)
 
-# How to use
+# How to use locally
 
-- Place your [API key](https://developer.nrel.gov/signup/) in a file called `api_key`  in the tests directory
+- Place your [API key](https://developer.nrel.gov/signup/) in a file called `api_key`  in the tests directory or run tests with [act](https://github.com/nektos/act).
 - Make adjustments to `test_download.py` and run the file
