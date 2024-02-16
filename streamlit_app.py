@@ -11,7 +11,7 @@ from datetime import datetime
 
 # Draw a title and some text to the app:
 '''
-# NREL-PSM3-2-EPW
+# NREL-PSM3-2-EPW  v3.2.2
 
 This script converts climate data from NREL to the EnergyPlus EPW format.  
 If you do not have an API key, feel free to request one [here](https://developer.nrel.gov/signup).
@@ -24,14 +24,11 @@ api_key = st.text_input('Please provide your own api key here:',
 Please provide _Lat_, _Lon_, _Location_, and _Year_.
 '''
 
-lat = st.text_input('Lat:', value=42.434269, max_chars=None,  type='default')
-lon = st.text_input('Lon:', value=-76.500354, max_chars=None,  type='default')
-location = st.text_input('Location (just used to name the file):', value="Ithaca", max_chars=None, type='default')
-year = st.text_input('Year:', value=2019, max_chars=None,  type='default')
+lat = st.text_input('Lat:', value=33.770, max_chars=None,  type='default')
+lon = st.text_input('Lon:', value=-84.3824, max_chars=None,  type='default')
+location = st.text_input('Location (just used to name the file):', value="Atlanta", max_chars=None, type='default')
+year = st.text_input('Year:', value=2020, max_chars=None,  type='default')
 
-# lat, lon = 42.434269, -76.500354
-# location = "Ithaca"
-# year = '2019'
 attributes = 'air_temperature,clearsky_dhi,clearsky_dni,clearsky_ghi,cloud_type,dew_point,dhi,dni,fill_flag,ghi,' \
              'relative_humidity,solar_zenith_angle,surface_albedo,surface_pressure,total_precipitable_water,' \
              'wind_direction,wind_speed,ghuv-280-400,ghuv-295-385'
@@ -39,8 +36,6 @@ attributes = 'air_temperature,clearsky_dhi,clearsky_dni,clearsky_ghi,cloud_type,
 interval = '60'
 utc = 'false'
 your_name = "John+Doe"
-# api_key_file = open("api_key", 'r')
-# api_key = api_key_file.readline()
 reason_for_use = 'beta+testing'
 your_affiliation = 'aaa'
 your_email = "Joe@Doe.edu"
@@ -145,7 +140,7 @@ if st.button('Request from NREL'):
 
         st.write("Requesting data from NREL...")
 
-        file_name = download_epw(float(lat), float(lon), int(year), location, attributes, interval, utc, your_name,
+        file_name = download_epw(lon, lat, int(year), location, attributes, interval, utc, your_name,
                                  api_key, reason_for_use, your_affiliation, your_email, mailing_list, leap_year)
 
         if os.path.exists(file_name):

@@ -1,3 +1,4 @@
+import json
 import sys
 
 import numpy as np
@@ -8,31 +9,49 @@ from datetime import datetime
 import calendar
 
 
-def download_epw(lat, lon, year, location, attributes, interval, utc, your_name, api_key, reason_for_use,
+def download_epw(lon, lat, year, location, attributes, interval, utc, your_name, api_key, reason_for_use,
                  your_affiliation, your_email, mailing_list, leap_year):
     currentYear = datetime.now().year
     if int(year) == currentYear or int(year) == currentYear-1:
         raise Exception("NREL does not provide data for the current year " + str(
             year) + ". It is also unlikely that there is data availability for " + str(int(year) - 1) + ".")
 
-    # Declare url string
-    url = 'https://developer.nrel.gov/api/solar/nsrdb_psm3_download.csv?wkt=POINT({lon}%20{lat})&names={year}&leap_day={leap}&interval={interval}&utc={utc}&full_name={name}&email={email}&affiliation={affiliation}&mailing_list={mailing_list}&reason={reason}&api_key={api}&attributes={attr}'.format(
-        year=year, lat=lat, lon=lon, leap=leap_year, interval=interval, utc=utc, name=your_name, email=your_email,
-        mailing_list=mailing_list, affiliation=your_affiliation,
-        reason=reason_for_use, api=api_key, attr=attributes)
+    url = f"https://developer.nrel.gov/api/nsrdb/v2/solar/psm3-2-2-download.csv?api_key={api_key}"
+
+    payload = {
+        "names": year,
+        "leap_day": leap_year,
+        "interval": interval,
+        "utc": utc,
+        "full_name": your_name,
+        "email": your_email,
+        "affiliation": your_affiliation,
+        "mailing_list": mailing_list,
+        "reason": reason_for_use,
+        "attributes": attributes,
+        "wkt": f"POINT({lon} {lat})"
+    }
+
+    headers = {
+        'content-type': "application/x-www-form-urlencoded",
+        'cache-control': "no-cache"
+    }
 
     r = None
     all_data = None
 
     try:
-        r = requests.get(url, timeout=20)
+        r = requests.request("GET", url, params=
+            payload, headers=headers, timeout=20)
+        
+        print(r.text)
         r.raise_for_status()
 
         # Return just the first 2 lines to get metadata:
-        all_data = pd.read_csv(url)
+        all_data = pd.read_csv(r.url)
 
         if all_data is None:
-            raise("Could not retrieve any data")
+            raise ("Could not retrieve any data")
 
     except requests.exceptions.HTTPError as errh:
         print("Http Error:", errh)
