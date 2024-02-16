@@ -132,3 +132,5 @@ __pycache__/
 *.bak
 .vscode/settings.json
 run_act_test.bat
+.DS_Store
+*.py~

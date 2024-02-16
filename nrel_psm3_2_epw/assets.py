@@ -1,18 +1,18 @@
-import json
+import calendar
 import sys
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
 import requests
+
 from . import epw
-from datetime import datetime
-import calendar
 
 
 def download_epw(lon, lat, year, location, attributes, interval, utc, your_name, api_key, reason_for_use,
                  your_affiliation, your_email, mailing_list, leap_year):
     currentYear = datetime.now().year
-    if int(year) == currentYear or int(year) == currentYear-1:
+    if int(year) == currentYear or int(year) == currentYear - 1:
         raise Exception("NREL does not provide data for the current year " + str(
             year) + ". It is also unlikely that there is data availability for " + str(int(year) - 1) + ".")
 
@@ -42,8 +42,8 @@ def download_epw(lon, lat, year, location, attributes, interval, utc, your_name,
 
     try:
         r = requests.request("GET", url, params=
-            payload, headers=headers, timeout=20)
-        
+        payload, headers=headers, timeout=20)
+
         print(r.text)
         r.raise_for_status()
 
@@ -66,7 +66,7 @@ def download_epw(lon, lat, year, location, attributes, interval, utc, your_name,
 
     hours_per_year = 8760
 
-    if calendar.isleap(int(year)) and bool(leap_year) is True and all_data.shape[0] == 8784+2:
+    if calendar.isleap(int(year)) and bool(leap_year) is True and all_data.shape[0] == 8784 + 2:
         hours_per_year = 8784
 
     datetimes = pd.date_range('01/01/' + str(year),
@@ -310,7 +310,7 @@ def download_epw(lon, lat, year, location, attributes, interval, utc, your_name,
 
     d = "_"
     file_name = str(location) + d + str(lat) + d + \
-        str(lon) + d + str(year) + '.epw'
+                str(lon) + d + str(year) + '.epw'
 
     out.write(file_name)
     print("Success: File", file_name, "written")
