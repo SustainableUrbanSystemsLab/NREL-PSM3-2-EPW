@@ -3,6 +3,8 @@ from pathlib import Path
 
 from nrel_psm3_2_epw.assets import *
 
+import pandas as pd
+
 
 def test_download_epw():
     lat, lon = 40.755840, -73.982684
@@ -41,4 +43,18 @@ def test_download_epw():
     data = epw.EPW()
     data.read("NYC_40.75584_-73.982684_2012.epw")
 
-    assert (data.dataframe['Year'][0] == 2012)
+    #(data.dataframe)
+
+    assert(data.dataframe['Year'][0] == 2012)
+    assert((data.dataframe['Atmospheric Station Pressure'] > 31000) & (data.dataframe['Atmospheric Station Pressure'] < 120000)).all()
+    assert((data.dataframe['Dry Bulb Temperature'] > -70) & (data.dataframe['Dry Bulb Temperature'] < 70)).all()
+    assert((data.dataframe['Dew Point Temperature'] > -70) & (data.dataframe['Dew Point Temperature'] < 70)).all()
+    assert((data.dataframe['Relative Humidity'] >= 0) & (data.dataframe['Relative Humidity'] < 110)).all()
+    assert(data.dataframe['Global Horizontal Radiation'] >= 0).all()
+    assert(data.dataframe['Direct Normal Radiation'] >= 0).all()
+    assert(data.dataframe['Diffuse Horizontal Radiation'] >= 0).all()
+    assert((data.dataframe['Wind Direction'] >= 0) & (data.dataframe['Relative Humidity'] <= 360)).all()
+    assert((data.dataframe['Wind Speed'] >= 0) & (data.dataframe['Wind Speed'] <= 40)).all()
+    assert((data.dataframe['Opaque Sky Cover'] >= 0) & (data.dataframe['Opaque Sky Cover'] <= 10)).all()
+    assert((data.dataframe['Total Sky Cover'] >= 0) & (data.dataframe['Total Sky Cover'] <= 10)).all()
+

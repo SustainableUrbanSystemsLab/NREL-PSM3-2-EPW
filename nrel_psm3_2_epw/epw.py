@@ -80,7 +80,7 @@ class EPW():
                  'Wind Direction',
                  'Wind Speed',
                  'Total Sky Cover',
-                 'Opaque Sky Cover (used if Horizontal IR Intensity missing)',
+                 'Opaque Sky Cover',
                  'Visibility',
                  'Ceiling Height',
                  'Present Weather Observation',

@@ -249,8 +249,6 @@ def download_epw(lon, lat, year, location, attributes, interval, utc, your_name,
 
     # Actual file starts here
 
-    missing_values = np.array(np.ones(hours_per_year) * 999999).astype(int)
-
     # st.write(df.index)
     epw_df = pd.DataFrame()
     epw_df['Year'] = datetimes.year.astype(int)
@@ -258,7 +256,7 @@ def download_epw(lon, lat, year, location, attributes, interval, utc, your_name,
     epw_df['Day'] = datetimes.day.astype(int)
     epw_df['Hour'] = datetimes.hour.astype(int) + 1
     epw_df['Minute'] = datetimes.minute.astype(int)
-    epw_df['Data Source and Uncertainty Flags'] = missing_values
+    epw_df['Data Source and Uncertainty Flags'] = "'Created with NREL PSM3 input data'"
 
     epw_df['Dry Bulb Temperature'] = df['Temperature'].values.flatten()
 
@@ -266,21 +264,21 @@ def download_epw(lon, lat, year, location, attributes, interval, utc, your_name,
 
     epw_df['Relative Humidity'] = df['Relative Humidity'].values.flatten()
 
-    epw_df['Atmospheric Station Pressure'] = df['Pressure'].values.flatten()
-    epw_df['Extraterrestrial Horizontal Radiation'] = missing_values
+    epw_df['Atmospheric Station Pressure'] = df['Pressure'].astype(int).multiply(100).values.flatten()
+    epw_df['Extraterrestrial Horizontal Radiation'] = 9999
     #
-    epw_df['Extraterrestrial Direct Normal Radiation'] = missing_values
+    epw_df['Extraterrestrial Direct Normal Radiation'] = 9999
     #
-    epw_df['Horizontal Infrared Radiation Intensity'] = missing_values
+    epw_df['Horizontal Infrared Radiation Intensity'] = 9999
     #
     epw_df['Global Horizontal Radiation'] = df['GHI'].values.flatten()
     epw_df['Direct Normal Radiation'] = df['DNI'].values.flatten()
     epw_df['Diffuse Horizontal Radiation'] = df['DHI'].values.flatten()
 
-    epw_df['Global Horizontal Illuminance'] = missing_values
-    epw_df['Direct Normal Illuminance'] = missing_values
-    epw_df['Diffuse Horizontal Illuminance'] = missing_values
-    epw_df['Zenith Luminance'] = missing_values
+    epw_df['Global Horizontal Illuminance'] = 999999
+    epw_df['Direct Normal Illuminance'] = 999999
+    epw_df['Diffuse Horizontal Illuminance'] = 999999
+    epw_df['Zenith Luminance'] = 9999
 
     epw_df['Wind Direction'] = df['Wind Direction'].values.flatten()
     epw_df['Wind Speed'] = df['Wind Speed'].values.flatten()
@@ -290,21 +288,21 @@ def download_epw(lon, lat, year, location, attributes, interval, utc, your_name,
     epw_df['Opaque Sky Cover'] = df['Cloud Type'].values.flatten()
     #
 
-    epw_df['Visibility'] = missing_values
-    epw_df['Ceiling Height'] = missing_values
-    epw_df['Present Weather Observation'] = missing_values
+    epw_df['Visibility'] = 9999
+    epw_df['Ceiling Height'] = 99999
+    epw_df['Present Weather Observation'] = ''
     #
-    epw_df['Present Weather Codes'] = missing_values
+    epw_df['Present Weather Codes'] = ''
     epw_df['Precipitable Water'] = df['Precipitable Water'].values.flatten()
-    epw_df['Aerosol Optical Depth'] = missing_values
+    epw_df['Aerosol Optical Depth'] = .999
     #
-    epw_df['Snow Depth'] = missing_values
-    epw_df['Days Since Last Snowfall'] = missing_values
+    epw_df['Snow Depth'] = 999
+    epw_df['Days Since Last Snowfall'] = 99
     epw_df['Albedo'] = df['Surface Albedo'].values.flatten()
     #
 
-    epw_df['Liquid Precipitation Depth'] = missing_values
-    epw_df['Liquid Precipitation Quantity'] = missing_values
+    epw_df['Liquid Precipitation Depth'] = 999
+    epw_df['Liquid Precipitation Quantity'] = 99
 
     out.dataframe = epw_df
 
