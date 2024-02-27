@@ -3,7 +3,7 @@
 
 # Demo
 
-- [Link to demo](https://nrel-psm3-2-epw-2djuwytnlpmk4fmsfai74g.streamlit.app/)
+- [Link to demo](https://nrel-psm3-2-epw.streamlit.app/)
 
 # How to use locally
 
