@@ -11,7 +11,7 @@ from datetime import datetime
 
 # Draw a title and some text to the app:
 '''
-# NREL-PSM3-2-EPW  v3.2.2
+# NREL-PSM3-2-EPW  `v3.2.2`
 
 This script converts climate data from NREL to the EnergyPlus EPW format.  
 If you do not have an API key, please request one [here](https://developer.nrel.gov/signup).
