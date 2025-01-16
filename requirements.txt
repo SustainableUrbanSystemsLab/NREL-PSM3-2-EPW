@@ -1,4 +1,4 @@
 click==8
-numpy
-pandas
-requests
+numpy==2.2.1
+pandas==2.2.3
+requests==2.32.3
