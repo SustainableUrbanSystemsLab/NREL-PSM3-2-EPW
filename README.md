@@ -1,6 +1,5 @@
 # NREL-PSM3-2-EPW
-
-[![Build-Test](https://github.com/SustainableUrbanSystemsLab/NREL-PSM3-2-EPW/actions/workflows/build-test.yml/badge.svg)](https://github.com/SustainableUrbanSystemsLab/NREL-PSM3-2-EPW/actions/workflows/build-test.yml)
+[![Build-Test](https://github.com/SustainableUrbanSystemsLab/NREL-PSM3-2-EPW/actions/workflows/build-test.yml/badge.svg?branch=main)](https://github.com/SustainableUrbanSystemsLab/NREL-PSM3-2-EPW/actions/workflows/build-test.yml)
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://nrel-psm3-2-epw.streamlit.app/)
 [![Version](https://img.shields.io/badge/version-v4.0.0-blue)](https://github.com/SustainableUrbanSystemsLab/NREL-PSM3-2-EPW/releases)
 
