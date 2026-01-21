@@ -49,8 +49,13 @@ def test_download_epw(tmp_path, monkeypatch):
         leap_year,
     )
 
+    # Find the generated EPW file (filename format changed with refactoring)
+    epw_files = list(tmp_path.glob("*.epw"))
+    assert len(epw_files) == 1, f"Expected 1 EPW file, found {len(epw_files)}: {epw_files}"
+    epw_file = epw_files[0]
+
     data = epw.EPW()
-    data.read(tmp_path / "NYC_40.75584_-73.982684_tmy.epw")
+    data.read(epw_file)
 
     assert data.dataframe.shape[0] == 8760
     assert data.dataframe["Year"].between(1998, datetime.now().year).all()
