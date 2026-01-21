@@ -6,7 +6,7 @@ import re
 import os
 import hashlib
 from datetime import datetime
-from typing import Optional, Union, Any
+from typing import Optional, Any
 
 import streamlit as st
 import pandas as pd
@@ -14,17 +14,19 @@ import pandas as pd
 from nrel_psm3_2_epw.assets import download_epw
 
 # --- CONSTANTS ---
-ATTRIBUTES = ('air_temperature,clearsky_dhi,clearsky_dni,clearsky_ghi,cloud_type,dew_point,dhi,dni,fill_flag,'
-              'ghi,relative_humidity,solar_zenith_angle,surface_albedo,surface_pressure,total_precipitable_water,'
-              'wind_direction,wind_speed')
-INTERVAL = '60'
-UTC = 'false'
+ATTRIBUTES = (
+    "air_temperature,clearsky_dhi,clearsky_dni,clearsky_ghi,cloud_type,dew_point,dhi,dni,fill_flag,"
+    "ghi,relative_humidity,solar_zenith_angle,surface_albedo,surface_pressure,total_precipitable_water,"
+    "wind_direction,wind_speed"
+)
+INTERVAL = "60"
+UTC = "false"
 YOUR_NAME = "John+Doe"
-REASON_FOR_USE = 'beta+testing'
-YOUR_AFFILIATION = 'aaa'
+REASON_FOR_USE = "beta+testing"
+YOUR_AFFILIATION = "aaa"
 YOUR_EMAIL = "Joe@Doe.edu"
-MAILING_LIST = 'false'
-LEAP_YEAR = 'false'
+MAILING_LIST = "false"
+LEAP_YEAR = "false"
 MIN_YEAR = 1998
 VALID_API_KEY_HASH = "1c2c12cf359f7aba48e0aaf39ac031d98fee2418f3c4e482ec1044904032fefe"
 
@@ -47,12 +49,10 @@ def _load_api_key() -> Optional[str]:
     # 2. Environment Variable
     api_key = os.environ.get("APIKEY")
     if api_key:
-        print("DEBUG: Found APIKEY in os.environ")
         return api_key
 
     cwd = os.getcwd()
-    print(f"DEBUG: CWD is {cwd}")
-    
+
     # 3. api_key file
     api_key_path = os.path.join(cwd, "api_key")
     if os.path.isfile(api_key_path):
@@ -61,28 +61,21 @@ def _load_api_key() -> Optional[str]:
 
     # 4. .env file
     env_path = os.path.join(cwd, ".env")
-    print(f"DEBUG: Checking .env at {env_path}")
     if os.path.isfile(env_path):
-        print("DEBUG: .env file exists")
         with open(env_path, "r") as f:
             for line in f:
                 stripped = line.strip()
                 if not stripped or stripped.startswith("#") or "=" not in stripped:
                     continue
                 key, value = stripped.split("=", 1)
-                # print(f"DEBUG: Seen key: {key}")
                 if key.strip() == "APIKEY" and value.strip():
-                    print("DEBUG: Found APIKEY in .env")
                     return value.strip()
-    else:
-        print("DEBUG: .env file NOT found")
     return None
 
 
-def download_button(object_to_download: Any, 
-                    download_filename: str, 
-                    button_text: str, 
-                    pickle_it: bool = False) -> Optional[str]:
+def download_button(
+    object_to_download: Any, download_filename: str, button_text: str, pickle_it: bool = False
+) -> Optional[str]:
     """
     Generates a link to download the given object_to_download.
     """
@@ -110,8 +103,8 @@ def download_button(object_to_download: Any,
         st.error(f"Encoding error: {e}")
         return None
 
-    button_uuid = str(uuid.uuid4()).replace('-', '')
-    button_id = re.sub(r'\d+', '', button_uuid)
+    button_uuid = str(uuid.uuid4()).replace("-", "")
+    button_id = re.sub(r"\d+", "", button_uuid)
 
     custom_css = f""" 
         <style>
@@ -138,7 +131,10 @@ def download_button(object_to_download: Any,
                 }}
         </style> """
 
-    dl_link = custom_css + f'<a download="{download_filename}" id="{button_id}" href="data:file/txt;base64,{b64}">{button_text}</a><br><br>'
+    dl_link = (
+        custom_css + f'<a download="{download_filename}" id="{button_id}" '
+        f'href="data:file/txt;base64,{b64}">{button_text}</a><br><br>'
+    )
     return dl_link
 
 
@@ -157,10 +153,10 @@ def main():
         value="",
         type="password",
     )
-    
+
     api_key = ""
     api_key_source = "none"
-    
+
     if api_key_override:
         api_key = api_key_override
         api_key_source = "user"
@@ -168,7 +164,7 @@ def main():
     elif default_api_key:
         api_key = default_api_key
         api_key_source = "default"
-        
+
         # Verify Hash
         key_hash = hashlib.sha256(api_key.strip().encode()).hexdigest()
         if key_hash == VALID_API_KEY_HASH:
@@ -180,29 +176,33 @@ def main():
 
     st.markdown("Please provide _Lat_, _Lon_, _Location_, and _Year_.")
 
-    lat = st.text_input('Lat:', value=33.770)
-    lon = st.text_input('Lon:', value=-84.3824)
-    location = st.text_input('Location (just used to name the file):', value="Atlanta")
-    year = st.text_input('Year (e.g., 2012, tmy, tmy-2024):', value="tmy")
+    lat = st.text_input("Lat:", value=33.770)
+    lon = st.text_input("Lon:", value=-84.3824)
+    location = st.text_input("Location (just used to name the file):", value="Atlanta")
+    year = st.text_input("Year (e.g., 2012, tmy, tmy-2024):", value="tmy")
 
-    if st.button('Request from NREL'):
+    if st.button("Request from NREL"):
         if not api_key:
             st.error("Please provide a valid API key.")
             st.stop()
 
         current_year = datetime.now().year
         year_str = str(year).strip()
-        
+
         # Basic Year Validation
         if year_str.isdigit():
             year_int = int(year_str)
             if year_int in (current_year, current_year - 1):
-                st.warning(f"NREL does not provide data for the current year {year}. "
-                           f"It is also unlikely that there is data availability for {year_int - 1}.")
+                st.warning(
+                    f"NREL does not provide data for the current year {year}. "
+                    f"It is also unlikely that there is data availability for {year_int - 1}."
+                )
                 st.stop()
             elif year_int < MIN_YEAR:
-                st.warning(f"NREL does not provide data for the year {year}. "
-                           f"The earliest year data is available for is {MIN_YEAR}.")
+                st.warning(
+                    f"NREL does not provide data for the year {year}. "
+                    f"The earliest year data is available for is {MIN_YEAR}."
+                )
                 st.stop()
         else:
             if not year_str.lower().startswith(("tmy", "tgy", "tdy")):
@@ -212,8 +212,22 @@ def main():
         st.info("Requesting data from NREL...")
 
         try:
-            file_name = download_epw(lon, lat, year, location, ATTRIBUTES, INTERVAL, UTC, YOUR_NAME,
-                                     api_key, REASON_FOR_USE, YOUR_AFFILIATION, YOUR_EMAIL, MAILING_LIST, LEAP_YEAR)
+            file_name = download_epw(
+                lon,
+                lat,
+                year,
+                location,
+                ATTRIBUTES,
+                INTERVAL,
+                UTC,
+                YOUR_NAME,
+                api_key,
+                REASON_FOR_USE,
+                YOUR_AFFILIATION,
+                YOUR_EMAIL,
+                MAILING_LIST,
+                LEAP_YEAR,
+            )
         except Exception as exc:
             st.error(f"Request failed: {exc}")
             if api_key_source == "default":
@@ -221,9 +235,9 @@ def main():
             st.stop()
 
         if os.path.exists(file_name):
-            with open(file_name, 'rb') as f:
+            with open(file_name, "rb") as f:
                 s = f.read()
-                download_button_str = download_button(s, file_name, 'Download EPW')
+                download_button_str = download_button(s, file_name, "Download EPW")
                 if download_button_str:
                     st.markdown(download_button_str, unsafe_allow_html=True)
                 else:

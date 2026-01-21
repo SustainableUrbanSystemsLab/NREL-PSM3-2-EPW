@@ -136,4 +136,4 @@ run_act_test.bat
 *.py~
 
 # Streamlit secrets
-.streamlit/secrets.toml
+app/.streamlit/secrets.toml

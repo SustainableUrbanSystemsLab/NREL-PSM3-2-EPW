@@ -56,20 +56,22 @@ def _build_all_data(row_count, include_time_columns=True, bad_time=False):
     data_rows = []
     for idx in range(row_count):
         row = {col: 0 for col in columns}
-        row.update({
-            "Temperature": 20 + idx,
-            "Dew Point": 10 + idx,
-            "Relative Humidity": 50,
-            "Pressure": 1013,
-            "GHI": 200,
-            "DNI": 500,
-            "DHI": 100,
-            "Wind Direction": 180,
-            "Wind Speed": 3,
-            "Cloud Type": 1,
-            "Precipitable Water": 1.5,
-            "Surface Albedo": 0.2,
-        })
+        row.update(
+            {
+                "Temperature": 20 + idx,
+                "Dew Point": 10 + idx,
+                "Relative Humidity": 50,
+                "Pressure": 1013,
+                "GHI": 200,
+                "DNI": 500,
+                "DHI": 100,
+                "Wind Direction": 180,
+                "Wind Speed": 3,
+                "Cloud Type": 1,
+                "Precipitable Water": 1.5,
+                "Surface Albedo": 0.2,
+            }
+        )
         if include_time_columns:
             if bad_time and idx == 0:
                 row.update({"Year": "bad", "Month": "bad", "Day": "bad", "Hour": "bad", "Minute": "bad"})
@@ -94,28 +96,33 @@ def test_sanitize_url_removes_api_key():
     assert "names=2012" in sanitized
 
 
-@pytest.mark.parametrize("value,expected", [
-    ("tmy", True),
-    ("TMY-2024", True),
-    ("tgy-2024", True),
-    ("tdy-2024", True),
-    ("2012", False),
-])
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        ("tmy", True),
+        ("TMY-2024", True),
+        ("tgy-2024", True),
+        ("tdy-2024", True),
+        ("2012", False),
+    ],
+)
 def test_is_tmy_name(value, expected):
     assert assets._is_tmy_name(value) is expected
 
 
 def test_download_epw_rejects_non_numeric_year():
     with pytest.raises(ValueError):
-        assets.download_epw(0, 0, "not-a-year", "Loc", "ghi", "60", "false",
-                            "Name", "key", "reason", "aff", "email", "false", "false")
+        assets.download_epw(
+            0, 0, "not-a-year", "Loc", "ghi", "60", "false", "Name", "key", "reason", "aff", "email", "false", "false"
+        )
 
 
 def test_download_epw_rejects_current_year():
     current_year = str(assets.datetime.now().year)
     with pytest.raises(Exception):
-        assets.download_epw(0, 0, current_year, "Loc", "ghi", "60", "false",
-                            "Name", "key", "reason", "aff", "email", "false", "false")
+        assets.download_epw(
+            0, 0, current_year, "Loc", "ghi", "60", "false", "Name", "key", "reason", "aff", "email", "false", "false"
+        )
 
 
 def test_download_epw_non_ok_json(monkeypatch):
@@ -129,8 +136,9 @@ def test_download_epw_non_ok_json(monkeypatch):
     monkeypatch.setattr(assets.requests, "request", lambda *args, **kwargs: response)
 
     with pytest.raises(RuntimeError) as exc:
-        assets.download_epw(0, 0, 2012, "Loc", "ghi", "60", "false",
-                            "Name", "key", "reason", "aff", "email", "false", "false")
+        assets.download_epw(
+            0, 0, 2012, "Loc", "ghi", "60", "false", "Name", "key", "reason", "aff", "email", "false", "false"
+        )
 
     assert "api_key" not in str(exc.value)
 
@@ -147,8 +155,9 @@ def test_download_epw_non_ok_non_json(monkeypatch):
     monkeypatch.setattr(assets.requests, "request", lambda *args, **kwargs: response)
 
     with pytest.raises(RuntimeError) as exc:
-        assets.download_epw(0, 0, 2012, "Loc", "ghi", "60", "false",
-                            "Name", "key", "reason", "aff", "email", "false", "false")
+        assets.download_epw(
+            0, 0, 2012, "Loc", "ghi", "60", "false", "Name", "key", "reason", "aff", "email", "false", "false"
+        )
 
     assert "Not Found" in str(exc.value)
 
@@ -160,8 +169,9 @@ def test_download_epw_request_connection_error(monkeypatch):
     monkeypatch.setattr(assets.requests, "request", _raise)
 
     with pytest.raises(requests.exceptions.ConnectionError):
-        assets.download_epw(0, 0, 2012, "Loc", "ghi", "60", "false",
-                            "Name", "key", "reason", "aff", "email", "false", "false")
+        assets.download_epw(
+            0, 0, 2012, "Loc", "ghi", "60", "false", "Name", "key", "reason", "aff", "email", "false", "false"
+        )
 
 
 def test_download_epw_request_timeout_error(monkeypatch):
@@ -171,8 +181,9 @@ def test_download_epw_request_timeout_error(monkeypatch):
     monkeypatch.setattr(assets.requests, "request", _raise)
 
     with pytest.raises(requests.exceptions.Timeout):
-        assets.download_epw(0, 0, 2012, "Loc", "ghi", "60", "false",
-                            "Name", "key", "reason", "aff", "email", "false", "false")
+        assets.download_epw(
+            0, 0, 2012, "Loc", "ghi", "60", "false", "Name", "key", "reason", "aff", "email", "false", "false"
+        )
 
 
 def test_download_epw_request_other_error(monkeypatch):
@@ -182,8 +193,9 @@ def test_download_epw_request_other_error(monkeypatch):
     monkeypatch.setattr(assets.requests, "request", _raise)
 
     with pytest.raises(requests.exceptions.RequestException):
-        assets.download_epw(0, 0, 2012, "Loc", "ghi", "60", "false",
-                            "Name", "key", "reason", "aff", "email", "false", "false")
+        assets.download_epw(
+            0, 0, 2012, "Loc", "ghi", "60", "false", "Name", "key", "reason", "aff", "email", "false", "false"
+        )
 
 
 def test_download_epw_no_data_rows(monkeypatch):
@@ -194,8 +206,9 @@ def test_download_epw_no_data_rows(monkeypatch):
     monkeypatch.setattr(assets.pd, "read_csv", _mock_read_csv(all_data))
 
     with pytest.raises(RuntimeError, match="No data rows"):
-        assets.download_epw(0, 0, 2012, "Loc", "ghi", "60", "false",
-                            "Name", "key", "reason", "aff", "email", "false", "false")
+        assets.download_epw(
+            0, 0, 2012, "Loc", "ghi", "60", "false", "Name", "key", "reason", "aff", "email", "false", "false"
+        )
 
 
 def test_download_epw_read_csv_none(monkeypatch):
@@ -204,8 +217,9 @@ def test_download_epw_read_csv_none(monkeypatch):
     monkeypatch.setattr(assets.pd, "read_csv", lambda *_args, **_kwargs: None)
 
     with pytest.raises(RuntimeError, match="Could not retrieve any data"):
-        assets.download_epw(0, 0, 2012, "Loc", "ghi", "60", "false",
-                            "Name", "key", "reason", "aff", "email", "false", "false")
+        assets.download_epw(
+            0, 0, 2012, "Loc", "ghi", "60", "false", "Name", "key", "reason", "aff", "email", "false", "false"
+        )
 
 
 def test_download_epw_tmy_missing_time_columns(monkeypatch):
@@ -216,8 +230,9 @@ def test_download_epw_tmy_missing_time_columns(monkeypatch):
     monkeypatch.setattr(assets.pd, "read_csv", _mock_read_csv(all_data))
 
     with pytest.raises(RuntimeError, match="missing expected timestamp columns"):
-        assets.download_epw(0, 0, "tmy", "Loc", "ghi", "60", "false",
-                            "Name", "key", "reason", "aff", "email", "false", "false")
+        assets.download_epw(
+            0, 0, "tmy", "Loc", "ghi", "60", "false", "Name", "key", "reason", "aff", "email", "false", "false"
+        )
 
 
 def test_download_epw_tmy_bad_time(monkeypatch):
@@ -228,8 +243,9 @@ def test_download_epw_tmy_bad_time(monkeypatch):
     monkeypatch.setattr(assets.pd, "read_csv", _mock_read_csv(all_data))
 
     with pytest.raises(RuntimeError, match="Could not parse timestamps"):
-        assets.download_epw(0, 0, "tmy", "Loc", "ghi", "60", "false",
-                            "Name", "key", "reason", "aff", "email", "false", "false")
+        assets.download_epw(
+            0, 0, "tmy", "Loc", "ghi", "60", "false", "Name", "key", "reason", "aff", "email", "false", "false"
+        )
 
 
 def test_download_epw_tmy_interval_coerced(monkeypatch, tmp_path):
@@ -245,8 +261,9 @@ def test_download_epw_tmy_interval_coerced(monkeypatch, tmp_path):
     monkeypatch.setattr(assets.pd, "read_csv", _mock_read_csv(all_data))
     monkeypatch.chdir(tmp_path)
 
-    assets.download_epw(0, 0, "tmy", "Loc", "ghi", "30", "false",
-                        "Name", "key", "reason", "aff", "email", "false", "false")
+    assets.download_epw(
+        0, 0, "tmy", "Loc", "ghi", "30", "false", "Name", "key", "reason", "aff", "email", "false", "false"
+    )
 
     assert captured["params"]["interval"] == "60"
     current_year = assets.datetime.now().year
@@ -267,8 +284,9 @@ def test_download_epw_numeric_year_success(monkeypatch, tmp_path):
     monkeypatch.setattr(assets.pd, "read_csv", _mock_read_csv(all_data))
     monkeypatch.chdir(tmp_path)
 
-    assets.download_epw(0, 0, 2012, "Loc", "ghi", "60", "false",
-                        "Name", "key", "reason", "aff", "email", "false", "false")
+    assets.download_epw(
+        0, 0, 2012, "Loc", "ghi", "60", "false", "Name", "key", "reason", "aff", "email", "false", "false"
+    )
 
     assert captured["url"] == assets.GOES_AGGREGATED_URL
     current_year = assets.datetime.now().year
@@ -277,7 +295,7 @@ def test_download_epw_numeric_year_success(monkeypatch, tmp_path):
 
 def test_download_epw_sanitizes_bad_lat_lon(monkeypatch, tmp_path):
     all_data = _build_all_data(3, include_time_columns=True)
-    
+
     captured = {}
 
     def _fake_request(_method, url, params=None, **_kwargs):
@@ -290,8 +308,22 @@ def test_download_epw_sanitizes_bad_lat_lon(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
 
     # Use non-numeric lat/lon to trigger exception blocks
-    assets.download_epw("bad-lon", "bad-lat", 2012, "Loc w/ Spaces", "ghi", "60", "false",
-                        "Name", "key", "reason", "aff", "email", "false", "false")
+    assets.download_epw(
+        "bad-lon",
+        "bad-lat",
+        2012,
+        "Loc w/ Spaces",
+        "ghi",
+        "60",
+        "false",
+        "Name",
+        "key",
+        "reason",
+        "aff",
+        "email",
+        "false",
+        "false",
+    )
 
     # Filename should use "bad-lat" and "bad-lon" strings directly, and sanitize location
     current_year = assets.datetime.now().year

@@ -77,10 +77,10 @@ def test_epw_read_handles_empty_lines(tmp_path):
         f.write("\n")  # Empty line to trigger the 'if not row: continue' check
         f.write("DATA PERIODS,1\n")
         f.write("2020,1,1,1,0,SOURCE,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n")
-    
+
     loaded = epw.EPW()
     loaded.read(file_path)
-    
+
     assert loaded.headers["LOCATION"] == ["City", "State"]
     assert loaded.headers["DATA PERIODS"] == ["1"]
     assert not loaded.dataframe.empty

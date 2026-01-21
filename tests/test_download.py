@@ -32,30 +32,39 @@ def test_download_epw(tmp_path, monkeypatch):
     leap_year = "false"
 
     monkeypatch.chdir(tmp_path)
-    download_epw(lon, lat, year, location, attributes, interval, utc, your_name,
-                 api_key, reason_for_use, your_affiliation, your_email, mailing_list, leap_year)
+    download_epw(
+        lon,
+        lat,
+        year,
+        location,
+        attributes,
+        interval,
+        utc,
+        your_name,
+        api_key,
+        reason_for_use,
+        your_affiliation,
+        your_email,
+        mailing_list,
+        leap_year,
+    )
 
     data = epw.EPW()
     data.read(tmp_path / "NYC_40.75584_-73.982684_tmy.epw")
 
     assert data.dataframe.shape[0] == 8760
     assert data.dataframe["Year"].between(1998, datetime.now().year).all()
-    assert ((data.dataframe["Atmospheric Station Pressure"] > 31000)
-            & (data.dataframe["Atmospheric Station Pressure"] < 120000)).all()
-    assert ((data.dataframe["Dry Bulb Temperature"] > -70)
-            & (data.dataframe["Dry Bulb Temperature"] < 70)).all()
-    assert ((data.dataframe["Dew Point Temperature"] > -70)
-            & (data.dataframe["Dew Point Temperature"] < 70)).all()
-    assert ((data.dataframe["Relative Humidity"] >= 0)
-            & (data.dataframe["Relative Humidity"] < 110)).all()
+    assert (
+        (data.dataframe["Atmospheric Station Pressure"] > 31000)
+        & (data.dataframe["Atmospheric Station Pressure"] < 120000)
+    ).all()
+    assert ((data.dataframe["Dry Bulb Temperature"] > -70) & (data.dataframe["Dry Bulb Temperature"] < 70)).all()
+    assert ((data.dataframe["Dew Point Temperature"] > -70) & (data.dataframe["Dew Point Temperature"] < 70)).all()
+    assert ((data.dataframe["Relative Humidity"] >= 0) & (data.dataframe["Relative Humidity"] < 110)).all()
     assert (data.dataframe["Global Horizontal Radiation"] >= 0).all()
     assert (data.dataframe["Direct Normal Radiation"] >= 0).all()
     assert (data.dataframe["Diffuse Horizontal Radiation"] >= 0).all()
-    assert ((data.dataframe["Wind Direction"] >= 0)
-            & (data.dataframe["Relative Humidity"] <= 360)).all()
-    assert ((data.dataframe["Wind Speed"] >= 0)
-            & (data.dataframe["Wind Speed"] <= 40)).all()
-    assert ((data.dataframe["Opaque Sky Cover"] >= 0)
-            & (data.dataframe["Opaque Sky Cover"] <= 10)).all()
-    assert ((data.dataframe["Total Sky Cover"] >= 0)
-            & (data.dataframe["Total Sky Cover"] <= 10)).all()
+    assert ((data.dataframe["Wind Direction"] >= 0) & (data.dataframe["Relative Humidity"] <= 360)).all()
+    assert ((data.dataframe["Wind Speed"] >= 0) & (data.dataframe["Wind Speed"] <= 40)).all()
+    assert ((data.dataframe["Opaque Sky Cover"] >= 0) & (data.dataframe["Opaque Sky Cover"] <= 10)).all()
+    assert ((data.dataframe["Total Sky Cover"] >= 0) & (data.dataframe["Total Sky Cover"] <= 10)).all()
