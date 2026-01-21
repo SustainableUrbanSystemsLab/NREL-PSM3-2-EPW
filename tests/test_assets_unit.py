@@ -249,7 +249,8 @@ def test_download_epw_tmy_interval_coerced(monkeypatch, tmp_path):
                         "Name", "key", "reason", "aff", "email", "false", "false")
 
     assert captured["params"]["interval"] == "60"
-    assert (tmp_path / "Loc_0_0_tmy.epw").exists()
+    current_year = assets.datetime.now().year
+    assert (tmp_path / f"Loc_0.00_0.00_tmy_{current_year}.epw").exists()
 
 
 def test_download_epw_numeric_year_success(monkeypatch, tmp_path):
@@ -270,4 +271,28 @@ def test_download_epw_numeric_year_success(monkeypatch, tmp_path):
                         "Name", "key", "reason", "aff", "email", "false", "false")
 
     assert captured["url"] == assets.GOES_AGGREGATED_URL
-    assert (tmp_path / "Loc_0_0_2012.epw").exists()
+    current_year = assets.datetime.now().year
+    assert (tmp_path / f"Loc_0.00_0.00_2012_{current_year}.epw").exists()
+
+
+def test_download_epw_sanitizes_bad_lat_lon(monkeypatch, tmp_path):
+    all_data = _build_all_data(3, include_time_columns=True)
+    
+    captured = {}
+
+    def _fake_request(_method, url, params=None, **_kwargs):
+        captured["url"] = url
+        captured["params"] = params
+        return DummyResponse(ok=True, url="https://example.com/data")
+
+    monkeypatch.setattr(assets.requests, "request", _fake_request)
+    monkeypatch.setattr(assets.pd, "read_csv", _mock_read_csv(all_data))
+    monkeypatch.chdir(tmp_path)
+
+    # Use non-numeric lat/lon to trigger exception blocks
+    assets.download_epw("bad-lon", "bad-lat", 2012, "Loc w/ Spaces", "ghi", "60", "false",
+                        "Name", "key", "reason", "aff", "email", "false", "false")
+
+    # Filename should use "bad-lat" and "bad-lon" strings directly, and sanitize location
+    current_year = assets.datetime.now().year
+    assert (tmp_path / f"Loc_w__Spaces_bad-lat_bad-lon_2012_{current_year}.epw").exists()

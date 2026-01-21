@@ -64,4 +64,23 @@ def test_epw_read_write_roundtrip(tmp_path):
 
     assert loaded.headers["LOCATION"] == ["City", "State"]
     assert loaded.dataframe.shape == (2, len(names))
+    assert loaded.headers["LOCATION"] == ["City", "State"]
+    assert loaded.dataframe.shape == (2, len(names))
     assert loaded.dataframe["Year"].tolist() == [2020, 2021]
+
+
+def test_epw_read_handles_empty_lines(tmp_path):
+    # Manually create a file with empty lines in the header
+    file_path = tmp_path / "empty_lines.epw"
+    with open(file_path, "w") as f:
+        f.write("LOCATION,City,State\n")
+        f.write("\n")  # Empty line to trigger the 'if not row: continue' check
+        f.write("DATA PERIODS,1\n")
+        f.write("2020,1,1,1,0,SOURCE,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n")
+    
+    loaded = epw.EPW()
+    loaded.read(file_path)
+    
+    assert loaded.headers["LOCATION"] == ["City", "State"]
+    assert loaded.headers["DATA PERIODS"] == ["1"]
+    assert not loaded.dataframe.empty

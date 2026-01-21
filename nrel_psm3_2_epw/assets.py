@@ -1,30 +1,48 @@
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from datetime import datetime
+import re
+from typing import Optional, Union, Any
 
-import numpy as np
 import pandas as pd
 import requests
 
 from . import epw
+from .constants import GOES_AGGREGATED_URL, GOES_TMY_URL, DEFAULT_HEADERS
 
 
-GOES_AGGREGATED_URL = "https://developer.nrel.gov/api/nsrdb/v2/solar/nsrdb-GOES-aggregated-v4-0-0-download.csv"
-GOES_TMY_URL = "https://developer.nrel.gov/api/nsrdb/v2/solar/nsrdb-GOES-tmy-v4-0-0-download.csv"
-
-
-def _sanitize_url(raw_url):
+def _sanitize_url(raw_url: str) -> str:
+    """Removes the api_key from a URL for safe logging."""
     parts = urlsplit(raw_url)
     query = [(k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True) if k != "api_key"]
     return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))
 
 
-def _is_tmy_name(value):
+def _is_tmy_name(value: Any) -> bool:
+    """Checks if the year value indicates a TMY dataset."""
     name = str(value).strip().lower()
     return name.startswith(("tmy", "tgy", "tdy"))
 
 
-def download_epw(lon, lat, year, location, attributes, interval, utc, your_name, api_key, reason_for_use,
-                 your_affiliation, your_email, mailing_list, leap_year):
+def download_epw(lon: Union[str, float],
+                 lat: Union[str, float],
+                 year: Union[str, int],
+                 location: str,
+                 attributes: str,
+                 interval: str,
+                 utc: str,
+                 your_name: str,
+                 api_key: str,
+                 reason_for_use: str,
+                 your_affiliation: str,
+                 your_email: str,
+                 mailing_list: str,
+                 leap_year: str) -> str:
+    """
+    Downloads climate data from NREL and converts it to an EPW file.
+
+    Returns:
+        str: The filename of the created EPW file.
+    """
     year_str = str(year).strip()
     year_int = int(year_str) if year_str.isdigit() else None
     is_tmy = _is_tmy_name(year)
@@ -34,8 +52,8 @@ def download_epw(lon, lat, year, location, attributes, interval, utc, your_name,
             raise ValueError("Year must be numeric unless using a TMY/TGY/TDY dataset.")
         current_year = datetime.now().year
         if year_int in (current_year, current_year - 1):
-            raise Exception("NREL does not provide data for the current year " + str(
-                year) + ". It is also unlikely that there is data availability for " + str(year_int - 1) + ".")
+            raise Exception(f"NREL does not provide data for the current year {year}. "
+                            f"It is also unlikely that there is data availability for {year_int - 1}.")
 
     if is_tmy and str(interval) != "60":
         interval = "60"
@@ -62,13 +80,11 @@ def download_epw(lon, lat, year, location, attributes, interval, utc, your_name,
         'cache-control': "no-cache"
     }
 
-    r = None
-    all_data = None
-
     try:
         r = requests.request("GET", url, params=payload, headers=headers, timeout=20)
+        # Redact API key for safety before potentially logging payload/url in an error
         payload["api_key"] = "REDACTED"
-        api_key = None
+        
         if not r.ok:
             safe_url = _sanitize_url(r.url)
             try:
@@ -103,6 +119,7 @@ def download_epw(lon, lat, year, location, attributes, interval, utc, your_name,
     # Return all but first 2 lines of csv to get data:
     df = all_data.iloc[2:, :]
     df.columns = all_data.iloc[1]
+    
     time_columns = ["Year", "Month", "Day", "Hour", "Minute"]
     if is_tmy:
         if not all(col in df.columns for col in time_columns):
@@ -113,181 +130,33 @@ def download_epw(lon, lat, year, location, attributes, interval, utc, your_name,
             raise RuntimeError("Could not parse timestamps from TMY response")
         datetimes = pd.DatetimeIndex(datetimes)
     else:
-        datetimes = pd.date_range('01/01/' + str(year_int),
-                                  periods=data_rows, freq='h')
+        datetimes = pd.date_range(f'01/01/{year_int}', periods=data_rows, freq='h')
 
     # Set the time index in the pandas dataframe:
     df = df.set_index(datetimes)
 
     # See metadata for specified properties, e.g., timezone and elevation
-    timezone = elevation = location_id = "Could not be retrieved from NREL"
+    timezone = elevation = "0"
     if metadata is not None:
-        timezone, elevation, location_id = metadata[
-            'Local Time Zone'], metadata['Elevation'], metadata['Location ID']
+        timezone = metadata.get('Local Time Zone', "0")
+        elevation = metadata.get('Elevation', "0")
 
     out = epw.EPW()
-    out.headers = {
-        'LOCATION': [location,
-                     'STATE',
-                     'COUNTRY',
-                     'NREL PSM v4 SOURCE',
-                     'XXX',
-                     lat,
-                     lon,
-                     timezone,
-                     elevation],
-        'DESIGN CONDITIONS': ['1',
-                              'This is ficticious header data to make the EPW readable',
-                              '',
-                              'Heating',
-                              '1',
-                              '3.8',
-                              '4.9',
-                              '-3.7',
-                              '2.8',
-                              '10.7',
-                              '-1.2',
-                              '3.4',
-                              '11.2',
-                              '12.9',
-                              '12.1',
-                              '11.6',
-                              '12.2',
-                              '2.2',
-                              '150',
-                              'Cooling',
-                              '8',
-                              '8.5',
-                              '28.3',
-                              '17.2',
-                              '25.7',
-                              '16.7',
-                              '23.6',
-                              '16.2',
-                              '18.6',
-                              '25.7',
-                              '17.8',
-                              '23.9',
-                              '17',
-                              '22.4',
-                              '5.9',
-                              '310',
-                              '16.1',
-                              '11.5',
-                              '19.9',
-                              '15.3',
-                              '10.9',
-                              '19.2',
-                              '14.7',
-                              '10.4',
-                              '18.7',
-                              '52.4',
-                              '25.8',
-                              '49.8',
-                              '23.8',
-                              '47.6',
-                              '22.4',
-                              '2038',
-                              'Extremes',
-                              '12.8',
-                              '11.5',
-                              '10.6',
-                              '22.3',
-                              '1.8',
-                              '34.6',
-                              '1.5',
-                              '2.3',
-                              '0.8',
-                              '36.2',
-                              '-0.1',
-                              '37.5',
-                              '-0.9',
-                              '38.8',
-                              '-1.9',
-                              '40.5'],
-        'TYPICAL/EXTREME PERIODS': ['6',
-                                    'Summer - Week Nearest Max Temperature For Period',
-                                    'Extreme',
-                                    '8/ 1',
-                                    '8/ 7',
-                                    'Summer - Week Nearest Average Temperature For Period',
-                                    'Typical',
-                                    '9/ 5',
-                                    '9/11',
-                                    'Winter - Week Nearest Min Temperature For Period',
-                                    'Extreme',
-                                    '2/ 1',
-                                    '2/ 7',
-                                    'Winter - Week Nearest Average Temperature For Period',
-                                    'Typical',
-                                    '2/15',
-                                    '2/21',
-                                    'Autumn - Week Nearest Average Temperature For Period',
-                                    'Typical',
-                                    '12/ 6',
-                                    '12/12',
-                                    'Spring - Week Nearest Average Temperature For Period',
-                                    'Typical',
-                                    '5/29',
-                                    '6/ 4'],
-        'GROUND TEMPERATURES': ['3',
-                                '.5',
-                                '',
-                                '',
-                                '',
-                                '10.86',
-                                '10.57',
-                                '11.08',
-                                '11.88',
-                                '13.97',
-                                '15.58',
-                                '16.67',
-                                '17.00',
-                                '16.44',
-                                '15.19',
-                                '13.51',
-                                '11.96',
-                                '2',
-                                '',
-                                '',
-                                '',
-                                '11.92',
-                                '11.41',
-                                '11.51',
-                                '11.93',
-                                '13.33',
-                                '14.60',
-                                '15.61',
-                                '16.15',
-                                '16.03',
-                                '15.32',
-                                '14.17',
-                                '12.95',
-                                '4',
-                                '',
-                                '',
-                                '',
-                                '12.79',
-                                '12.27',
-                                '12.15',
-                                '12.31',
-                                '13.10',
-                                '13.96',
-                                '14.74',
-                                '15.28',
-                                '15.41',
-                                '15.10',
-                                '14.42',
-                                '13.60'],
-        'HOLIDAYS/DAYLIGHT SAVINGS': ['No', '0', '0', '0'],
-        'COMMENTS 1': ['NREL PSM3 DATA'],
-        'COMMENTS 2': ['https://bit.ly/NREL--PSM3-2-EPW'],
-        'DATA PERIODS': ['1', '1', 'Data', 'Sunday', ' 1/ 1', '12/31']
-    }
+    out.headers = DEFAULT_HEADERS.copy()
+    
+    # Update location-specific headers
+    out.headers['LOCATION'] = [
+        location,
+        'STATE',
+        'COUNTRY',
+        'NREL PSM v4 SOURCE',
+        'XXX',
+        str(lat),
+        str(lon),
+        str(timezone),
+        str(elevation)
+    ]
 
-    # Actual file starts here
-
-    # st.write(df.index)
     epw_df = pd.DataFrame()
     epw_df['Year'] = datetimes.year.astype(int)
     epw_df['Month'] = datetimes.month.astype(int)
@@ -297,18 +166,15 @@ def download_epw(lon, lat, year, location, attributes, interval, utc, your_name,
     epw_df['Data Source and Uncertainty Flags'] = "'Created with NREL PSM v4 input data'"
 
     epw_df['Dry Bulb Temperature'] = df['Temperature'].values.flatten()
-
     epw_df['Dew Point Temperature'] = df['Dew Point'].values.flatten()
-
     epw_df['Relative Humidity'] = df['Relative Humidity'].values.flatten()
-
     epw_df['Atmospheric Station Pressure'] = df['Pressure'].astype(int).multiply(100).values.flatten()
+    
+    # Missing/Placeholder values
     epw_df['Extraterrestrial Horizontal Radiation'] = 9999
-    #
     epw_df['Extraterrestrial Direct Normal Radiation'] = 9999
-    #
     epw_df['Horizontal Infrared Radiation Intensity'] = 9999
-    #
+    
     epw_df['Global Horizontal Radiation'] = df['GHI'].values.flatten()
     epw_df['Direct Normal Radiation'] = df['DNI'].values.flatten()
     epw_df['Diffuse Horizontal Radiation'] = df['DHI'].values.flatten()
@@ -322,31 +188,40 @@ def download_epw(lon, lat, year, location, attributes, interval, utc, your_name,
     epw_df['Wind Speed'] = df['Wind Speed'].values.flatten()
 
     epw_df['Total Sky Cover'] = df['Cloud Type'].values.flatten()
-    # used if Horizontal IR Intensity missing
     epw_df['Opaque Sky Cover'] = df['Cloud Type'].values.flatten()
-    #
 
     epw_df['Visibility'] = 9999
     epw_df['Ceiling Height'] = 99999
     epw_df['Present Weather Observation'] = ''
-    #
     epw_df['Present Weather Codes'] = ''
     epw_df['Precipitable Water'] = df['Precipitable Water'].values.flatten()
     epw_df['Aerosol Optical Depth'] = .999
-    #
     epw_df['Snow Depth'] = 999
     epw_df['Days Since Last Snowfall'] = 99
     epw_df['Albedo'] = df['Surface Albedo'].values.flatten()
-    #
-
     epw_df['Liquid Precipitation Depth'] = 999
     epw_df['Liquid Precipitation Quantity'] = 99
 
     out.dataframe = epw_df
 
     d = "_"
-    file_name = str(location) + d + str(lat) + d + \
-                str(lon) + d + str(year) + '.epw'
+    
+    # Sanitize location: replace non-alphanumeric characters with underscores
+    safe_location = re.sub(r'[^a-zA-Z0-9]', '_', str(location))
+    
+    # Format lat/lon to 2 decimal places if possible
+    try:
+        lat_str = f"{float(lat):.2f}"
+    except (ValueError, TypeError):
+        lat_str = str(lat)
+        
+    try:
+        lon_str = f"{float(lon):.2f}"
+    except (ValueError, TypeError):
+        lon_str = str(lon)
+        
+    current_year = datetime.now().year
+    file_name = f"{safe_location}{d}{lat_str}{d}{lon_str}{d}{str(year)}{d}{current_year}.epw"
 
     out.write(file_name)
     print("Success: File", file_name, "written")
