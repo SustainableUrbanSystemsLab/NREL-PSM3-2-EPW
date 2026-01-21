@@ -4,6 +4,7 @@ import pickle
 import uuid
 import re
 import os
+import hashlib
 from datetime import datetime
 from typing import Optional, Union, Any
 
@@ -25,6 +26,7 @@ YOUR_EMAIL = "Joe@Doe.edu"
 MAILING_LIST = 'false'
 LEAP_YEAR = 'false'
 MIN_YEAR = 1998
+VALID_API_KEY_HASH = "1c2c12cf359f7aba48e0aaf39ac031d98fee2418f3c4e482ec1044904032fefe"
 
 
 def _load_api_key() -> Optional[str]:
@@ -134,7 +136,7 @@ def download_button(object_to_download: Any,
 
 def main():
     st.markdown("""
-    # NREL-PSM3-2-EPW  `v3.2.2`
+    # NREL-PSM3-2-EPW  `v4.0.0`
 
     This script converts climate data from NREL to the EnergyPlus EPW format.  
     If you do not have an API key, please request one [here](https://developer.nrel.gov/signup).
@@ -154,10 +156,19 @@ def main():
     if api_key_override:
         api_key = api_key_override
         api_key_source = "user"
+        st.success("User API key loaded.")
     elif default_api_key:
         api_key = default_api_key
         api_key_source = "default"
-        st.caption("Using the default API key from secrets.")
+        
+        # Verify Hash
+        key_hash = hashlib.sha256(api_key.strip().encode()).hexdigest()
+        if key_hash == VALID_API_KEY_HASH:
+            st.success("Default API key loaded (Verified).")
+        else:
+            st.warning("Default API key loaded (Unverified).")
+    else:
+        st.error("No API key loaded.")
 
     st.markdown("Please provide _Lat_, _Lon_, _Location_, and _Year_.")
 
