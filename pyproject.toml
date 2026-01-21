@@ -33,6 +33,10 @@ line-length = 120
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.packages.find]
+include = ["nrel_psm3_2_epw*"]
+exclude = ["app*", "tests*"]
+
 [dependency-groups]
 dev = [
     "pytest>=9.0.2",
