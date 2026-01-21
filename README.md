@@ -1,5 +1,11 @@
 # NREL-PSM3-2-EPW
 
+[![Build-Test](https://github.com/SustainLab/NREL-PSM3-2-EPW/actions/workflows/build-test.yml/badge.svg)](https://github.com/SustainLab/NREL-PSM3-2-EPW/actions/workflows/build-test.yml)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://nrel-psm3-2-epw.streamlit.app/)
+[![Version](https://img.shields.io/badge/version-v4.0.0-blue)](https://github.com/SustainLab/NREL-PSM3-2-EPW/releases)
+
+
+
 A script and Streamlit app that writes out EPW files from NREL Physical Solar Model (PSM) v3.2.2 (and v4.0.0 API).
 
 ## Features
