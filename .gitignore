@@ -134,3 +134,6 @@ __pycache__/
 run_act_test.bat
 .DS_Store
 *.py~
+
+# Streamlit secrets
+.streamlit/secrets.toml

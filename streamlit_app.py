@@ -47,9 +47,11 @@ def _load_api_key() -> Optional[str]:
     # 2. Environment Variable
     api_key = os.environ.get("APIKEY")
     if api_key:
+        print("DEBUG: Found APIKEY in os.environ")
         return api_key
 
     cwd = os.getcwd()
+    print(f"DEBUG: CWD is {cwd}")
     
     # 3. api_key file
     api_key_path = os.path.join(cwd, "api_key")
@@ -59,15 +61,21 @@ def _load_api_key() -> Optional[str]:
 
     # 4. .env file
     env_path = os.path.join(cwd, ".env")
+    print(f"DEBUG: Checking .env at {env_path}")
     if os.path.isfile(env_path):
+        print("DEBUG: .env file exists")
         with open(env_path, "r") as f:
             for line in f:
                 stripped = line.strip()
                 if not stripped or stripped.startswith("#") or "=" not in stripped:
                     continue
                 key, value = stripped.split("=", 1)
+                # print(f"DEBUG: Seen key: {key}")
                 if key.strip() == "APIKEY" and value.strip():
+                    print("DEBUG: Found APIKEY in .env")
                     return value.strip()
+    else:
+        print("DEBUG: .env file NOT found")
     return None
 
 
