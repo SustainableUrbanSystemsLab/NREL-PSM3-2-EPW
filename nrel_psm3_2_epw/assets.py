@@ -1,5 +1,4 @@
-import calendar
-import sys
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from datetime import datetime
 
 import numpy as np
@@ -9,14 +8,39 @@ import requests
 from . import epw
 
 
+GOES_AGGREGATED_URL = "https://developer.nrel.gov/api/nsrdb/v2/solar/nsrdb-GOES-aggregated-v4-0-0-download.csv"
+GOES_TMY_URL = "https://developer.nrel.gov/api/nsrdb/v2/solar/nsrdb-GOES-tmy-v4-0-0-download.csv"
+
+
+def _sanitize_url(raw_url):
+    parts = urlsplit(raw_url)
+    query = [(k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True) if k != "api_key"]
+    return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))
+
+
+def _is_tmy_name(value):
+    name = str(value).strip().lower()
+    return name.startswith(("tmy", "tgy", "tdy"))
+
+
 def download_epw(lon, lat, year, location, attributes, interval, utc, your_name, api_key, reason_for_use,
                  your_affiliation, your_email, mailing_list, leap_year):
-    currentYear = datetime.now().year
-    if int(year) == currentYear or int(year) == currentYear - 1:
-        raise Exception("NREL does not provide data for the current year " + str(
-            year) + ". It is also unlikely that there is data availability for " + str(int(year) - 1) + ".")
+    year_str = str(year).strip()
+    year_int = int(year_str) if year_str.isdigit() else None
+    is_tmy = _is_tmy_name(year)
 
-    url = f"https://developer.nrel.gov/api/nsrdb/v2/solar/psm3-2-2-download.csv?api_key={api_key}"
+    if not is_tmy:
+        if year_int is None:
+            raise ValueError("Year must be numeric unless using a TMY/TGY/TDY dataset.")
+        current_year = datetime.now().year
+        if year_int in (current_year, current_year - 1):
+            raise Exception("NREL does not provide data for the current year " + str(
+                year) + ". It is also unlikely that there is data availability for " + str(year_int - 1) + ".")
+
+    if is_tmy and str(interval) != "60":
+        interval = "60"
+
+    url = GOES_TMY_URL if is_tmy else GOES_AGGREGATED_URL
 
     payload = {
         "names": year,
@@ -29,7 +53,8 @@ def download_epw(lon, lat, year, location, attributes, interval, utc, your_name,
         "mailing_list": mailing_list,
         "reason": reason_for_use,
         "attributes": attributes,
-        "wkt": f"POINT({lon} {lat})"
+        "wkt": f"POINT({lon} {lat})",
+        "api_key": api_key,
     }
 
     headers = {
@@ -41,36 +66,36 @@ def download_epw(lon, lat, year, location, attributes, interval, utc, your_name,
     all_data = None
 
     try:
-        r = requests.request("GET", url, params=
-        payload, headers=headers, timeout=20)
-
-        print(r.text)
-        r.raise_for_status()
+        r = requests.request("GET", url, params=payload, headers=headers, timeout=20)
+        payload["api_key"] = "REDACTED"
+        api_key = None
+        if not r.ok:
+            safe_url = _sanitize_url(r.url)
+            try:
+                error_payload = r.json()
+            except ValueError:
+                error_payload = {"message": r.text.strip()}
+            raise RuntimeError(f"NREL request failed ({r.status_code}) for {safe_url}: {error_payload}")
 
         # Return just the first 2 lines to get metadata:
         all_data = pd.read_csv(r.url)
 
         if all_data is None:
-            raise ("Could not retrieve any data")
+            raise RuntimeError("Could not retrieve any data")
 
-    except requests.exceptions.HTTPError as errh:
-        print("Http Error:", errh)
-        [print(err) for err in r.json()['errors']]
-        sys.exit("There is an issue with the input url")
     except requests.exceptions.ConnectionError as errc:
         print("Error Connecting:", errc)
+        raise
     except requests.exceptions.Timeout as errt:
         print("Timeout Error:", errt)
+        raise
     except requests.exceptions.RequestException as err:
-        print("OOps: Something Else", err)
+        print("Oops: Something Else", err)
+        raise
 
-    hours_per_year = 8760
-
-    if calendar.isleap(int(year)) and bool(leap_year) is True and all_data.shape[0] == 8784 + 2:
-        hours_per_year = 8784
-
-    datetimes = pd.date_range('01/01/' + str(year),
-                              periods=hours_per_year, freq='H')
+    data_rows = all_data.shape[0] - 2
+    if data_rows <= 0:
+        raise RuntimeError("No data rows returned from NREL")
 
     # Take first row for metadata
     metadata = all_data.iloc[0, :]
@@ -78,6 +103,19 @@ def download_epw(lon, lat, year, location, attributes, interval, utc, your_name,
     # Return all but first 2 lines of csv to get data:
     df = all_data.iloc[2:, :]
     df.columns = all_data.iloc[1]
+    time_columns = ["Year", "Month", "Day", "Hour", "Minute"]
+    if is_tmy:
+        if not all(col in df.columns for col in time_columns):
+            raise RuntimeError("TMY response missing expected timestamp columns")
+        time_frame = df[time_columns].apply(pd.to_numeric, errors="coerce")
+        datetimes = pd.to_datetime(time_frame, errors="coerce")
+        if datetimes.isnull().any():
+            raise RuntimeError("Could not parse timestamps from TMY response")
+        datetimes = pd.DatetimeIndex(datetimes)
+    else:
+        datetimes = pd.date_range('01/01/' + str(year_int),
+                                  periods=data_rows, freq='h')
+
     # Set the time index in the pandas dataframe:
     df = df.set_index(datetimes)
 
@@ -92,7 +130,7 @@ def download_epw(lon, lat, year, location, attributes, interval, utc, your_name,
         'LOCATION': [location,
                      'STATE',
                      'COUNTRY',
-                     'NREL PSM3 SOURCE',
+                     'NREL PSM v4 SOURCE',
                      'XXX',
                      lat,
                      lon,
@@ -256,7 +294,7 @@ def download_epw(lon, lat, year, location, attributes, interval, utc, your_name,
     epw_df['Day'] = datetimes.day.astype(int)
     epw_df['Hour'] = datetimes.hour.astype(int) + 1
     epw_df['Minute'] = datetimes.minute.astype(int)
-    epw_df['Data Source and Uncertainty Flags'] = "'Created with NREL PSM3 input data'"
+    epw_df['Data Source and Uncertainty Flags'] = "'Created with NREL PSM v4 input data'"
 
     epw_df['Dry Bulb Temperature'] = df['Temperature'].values.flatten()
 

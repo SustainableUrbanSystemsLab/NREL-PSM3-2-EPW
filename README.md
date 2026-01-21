@@ -7,5 +7,9 @@
 
 # How to use locally
 
-- Place your [API key](https://developer.nrel.gov/signup/) in a file called `api_key`  in the tests directory or run tests with [act](https://github.com/nektos/act).
-- Make adjustments to `test_download.py` and run the file
+- Create a virtual environment and install dependencies with uv:
+  - `uv venv .venv`
+  - `uv sync --extra dev`
+- Place your [API key](https://developer.nrel.gov/signup/) in a file called `api_key` in the tests directory or export it as `APIKEY`.
+- Make adjustments to `tests/test_download.py` and run the file or run tests with `uv run pytest`.
+- For GOES TMY data, use `names` like `tmy`, `tmy-2024`, `tgy-2024`, or `tdy-2024`. Numeric years use the GOES aggregated dataset.
