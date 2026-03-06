@@ -10,6 +10,8 @@ from typing import Optional, Any
 
 import streamlit as st
 import pandas as pd
+import folium
+from streamlit_folium import st_folium
 
 from nrel_psm3_2_epw.assets import download_epw
 
@@ -176,8 +178,23 @@ def main():
 
     st.markdown("Please provide _Lat_, _Lon_, _Location_, and _Year_.")
 
-    lat = st.text_input("Lat:", value=33.770)
-    lon = st.text_input("Lon:", value=-84.3824)
+    # Show a map to pick lat/lon
+    st.write("Click on the map to select a location:")
+    m = folium.Map(location=[33.770, -84.3824], zoom_start=4)
+    m.add_child(folium.LatLngPopup())
+    map_data = st_folium(m, height=400, width=700)
+
+    # Initialize lat/lon with defaults
+    default_lat = 33.770
+    default_lon = -84.3824
+
+    # Update lat/lon from map click if available
+    if map_data and map_data.get("last_clicked"):
+        default_lat = map_data["last_clicked"]["lat"]
+        default_lon = map_data["last_clicked"]["lng"]
+
+    lat = st.text_input("Lat:", value=default_lat)
+    lon = st.text_input("Lon:", value=default_lon)
     location = st.text_input("Location (just used to name the file):", value="Atlanta")
     year = st.text_input("Year (e.g., 2012, tmy, tmy-2024):", value="tmy")
 
