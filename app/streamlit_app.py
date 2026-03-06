@@ -8,6 +8,7 @@ import hashlib
 from datetime import datetime
 from typing import Optional, Any
 
+import requests
 import streamlit as st
 import pandas as pd
 import folium
@@ -73,6 +74,44 @@ def _load_api_key() -> Optional[str]:
                 if key.strip() == "APIKEY" and value.strip():
                     return value.strip()
     return None
+
+
+@st.cache_data(show_spinner=False)
+def get_location_name(lat: float, lon: float) -> str:
+    """
+    Reverse geocodes the given latitude and longitude using OpenStreetMap Nominatim API.
+    Returns a meaningful location name or 'Unknown Location' if it fails.
+    """
+    url = f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}"
+    headers = {
+        "User-Agent": "NREL-PSM3-2-EPW-App/4.0.0"
+    }
+    try:
+        response = requests.get(url, headers=headers, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+
+        if "address" in data:
+            addr = data["address"]
+            city = addr.get("city") or addr.get("town") or addr.get("village") or addr.get("hamlet") or addr.get("county")
+            state = addr.get("state")
+            country = addr.get("country")
+
+            parts = [p for p in (city, state, country) if p]
+            if parts:
+                return ", ".join(parts)
+
+        if "display_name" in data:
+            # Fallback to the first few parts of the display name
+            parts = data["display_name"].split(", ")
+            if len(parts) > 3:
+                return ", ".join(parts[:3])
+            return data["display_name"]
+
+    except Exception as e:
+        print(f"Error in reverse geocoding: {e}")
+
+    return "Unknown Location"
 
 
 def download_button(
@@ -187,15 +226,21 @@ def main():
     # Initialize lat/lon with defaults
     default_lat = 33.770
     default_lon = -84.3824
+    default_location = "Atlanta"
 
     # Update lat/lon from map click if available
     if map_data and map_data.get("last_clicked"):
         default_lat = map_data["last_clicked"]["lat"]
         default_lon = map_data["last_clicked"]["lng"]
 
+        # Reverse geocode the location
+        loc_name = get_location_name(default_lat, default_lon)
+        if loc_name != "Unknown Location":
+            default_location = loc_name
+
     lat = st.text_input("Lat:", value=default_lat)
     lon = st.text_input("Lon:", value=default_lon)
-    location = st.text_input("Location (just used to name the file):", value="Atlanta")
+    location = st.text_input("Location (just used to name the file):", value=default_location)
     year = st.text_input("Year (e.g., 2012, tmy, tmy-2024):", value="tmy")
 
     if st.button("Request from NREL"):
