@@ -1,0 +1,3 @@
+## 2024-05-18 - Added Helpful Tooltips and Loading States to NREL API Form
+**Learning:** In Streamlit apps with long-running external API calls, users often lack immediate feedback on action execution. Static `st.info` messages are insufficient. Additionally, input fields lacking explicit format descriptions can cause user errors, especially with complex formats like TMY years or decimal coordinates.
+**Action:** When implementing Streamlit forms, always utilize `st.spinner()` for asynchronous or long-running tasks to provide visual loading feedback. Use the `help` parameter on `st.text_input` and `st.button` components to offer contextual guidance and tooltips without cluttering the UI. Promote primary actions using `type="primary"` on buttons.

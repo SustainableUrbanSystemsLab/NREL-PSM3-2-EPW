@@ -238,12 +238,12 @@ def main():
         if loc_name != "Unknown Location":
             default_location = loc_name
 
-    lat = st.text_input("Lat:", value=default_lat)
-    lon = st.text_input("Lon:", value=default_lon)
-    location = st.text_input("Location (just used to name the file):", value=default_location)
-    year = st.text_input("Year (e.g., 2012, tmy, tmy-2024):", value="tmy")
+    lat = st.text_input("Lat:", value=default_lat, help="Latitude of the location in decimal degrees (e.g., 33.770)")
+    lon = st.text_input("Lon:", value=default_lon, help="Longitude of the location in decimal degrees (e.g., -84.3824)")
+    location = st.text_input("Location (just used to name the file):", value=default_location, help="A descriptive name for the location, used to generate the output filename")
+    year = st.text_input("Year (e.g., 2012, tmy, tmy-2024):", value="tmy", help="A specific year (>=1998) or a TMY identifier like 'tmy' or 'tmy-2024'")
 
-    if st.button("Request from NREL"):
+    if st.button("Request from NREL", type="primary", help="Initiates request to NREL API to download Epw file"):
         if not api_key:
             st.error("Please provide a valid API key.")
             st.stop()
@@ -271,36 +271,36 @@ def main():
                 st.warning("Year must be a numeric year (>=1998) or a TMY name like tmy or tmy-2024.")
                 st.stop()
 
-        st.info("Requesting data from NREL...")
-
-        try:
-            file_name = download_epw(
-                lon,
-                lat,
-                year,
-                location,
-                ATTRIBUTES,
-                INTERVAL,
-                UTC,
-                YOUR_NAME,
-                api_key,
-                REASON_FOR_USE,
-                YOUR_AFFILIATION,
-                YOUR_EMAIL,
-                MAILING_LIST,
-                LEAP_YEAR,
-            )
-        except Exception as exc:
-            st.error(f"Request failed: {exc}")
-            if api_key_source == "default":
-                st.info("If this failure is related to the default API key, enter your own key above and retry.")
-            st.stop()
+        with st.spinner("Requesting data from NREL..."):
+            try:
+                file_name = download_epw(
+                    lon,
+                    lat,
+                    year,
+                    location,
+                    ATTRIBUTES,
+                    INTERVAL,
+                    UTC,
+                    YOUR_NAME,
+                    api_key,
+                    REASON_FOR_USE,
+                    YOUR_AFFILIATION,
+                    YOUR_EMAIL,
+                    MAILING_LIST,
+                    LEAP_YEAR,
+                )
+            except Exception as exc:
+                st.error(f"Request failed: {exc}")
+                if api_key_source == "default":
+                    st.info("If this failure is related to the default API key, enter your own key above and retry.")
+                st.stop()
 
         if os.path.exists(file_name):
             with open(file_name, "rb") as f:
                 s = f.read()
                 download_button_str = download_button(s, file_name, "Download EPW")
                 if download_button_str:
+                    st.success("Data successfully processed! Click below to download.")
                     st.markdown(download_button_str, unsafe_allow_html=True)
                 else:
                     st.error("Failed to generate download button.")
