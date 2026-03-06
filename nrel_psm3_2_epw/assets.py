@@ -1,3 +1,4 @@
+import io
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from datetime import datetime
 import re
@@ -94,8 +95,9 @@ def download_epw(
                 error_payload = {"message": r.text.strip()}
             raise RuntimeError(f"NREL request failed ({r.status_code}) for {safe_url}: {error_payload}")
 
-        # Return just the first 2 lines to get metadata:
-        all_data = pd.read_csv(r.url)
+        # Parse the downloaded content instead of requesting the URL again
+        # This prevents pandas from making a second HTTP request for the same data
+        all_data = pd.read_csv(io.BytesIO(r.content))
 
         if all_data is None:
             raise RuntimeError("Could not retrieve any data")

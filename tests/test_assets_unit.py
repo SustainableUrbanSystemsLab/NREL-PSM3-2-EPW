@@ -6,13 +6,14 @@ from nrel_psm3_2_epw import assets
 
 
 class DummyResponse:
-    def __init__(self, ok, url, status_code=200, json_data=None, json_error=None, text=""):
+    def __init__(self, ok, url, status_code=200, json_data=None, json_error=None, text="", content=b""):
         self.ok = ok
         self.url = url
         self.status_code = status_code
         self._json_data = json_data
         self._json_error = json_error
         self.text = text
+        self.content = content
 
     def json(self):
         if self._json_error:
