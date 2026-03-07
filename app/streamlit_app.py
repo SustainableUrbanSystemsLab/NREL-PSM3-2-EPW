@@ -1,16 +1,10 @@
-import base64
-import json
-import pickle
-import uuid
-import re
 import os
 import hashlib
 from datetime import datetime
-from typing import Optional, Any
+from typing import Optional
 
 import requests
 import streamlit as st
-import pandas as pd
 import folium
 from streamlit_folium import st_folium
 
@@ -112,71 +106,6 @@ def get_location_name(lat: float, lon: float) -> str:
         print(f"Error in reverse geocoding: {e}")
 
     return "Unknown Location"
-
-
-def download_button(
-    object_to_download: Any, download_filename: str, button_text: str, pickle_it: bool = False
-) -> Optional[str]:
-    """
-    Generates a link to download the given object_to_download.
-    """
-    if pickle_it:
-        try:
-            object_to_download = pickle.dumps(object_to_download)
-        except pickle.PicklingError as e:
-            st.error(f"Pickling error: {e}")
-            return None
-    else:
-        if isinstance(object_to_download, bytes):
-            pass
-        elif isinstance(object_to_download, pd.DataFrame):
-            object_to_download = object_to_download.to_csv(index=False)
-        else:
-            object_to_download = json.dumps(object_to_download)
-
-    try:
-        # Check if already bytes
-        if isinstance(object_to_download, bytes):
-            b64 = base64.b64encode(object_to_download).decode()
-        else:
-            b64 = base64.b64encode(object_to_download.encode()).decode()
-    except Exception as e:
-        st.error(f"Encoding error: {e}")
-        return None
-
-    button_uuid = str(uuid.uuid4()).replace("-", "")
-    button_id = re.sub(r"\d+", "", button_uuid)
-
-    custom_css = f""" 
-        <style>
-            #{button_id} {{
-                background-color: rgb(255, 255, 255);
-                color: rgb(38, 39, 48);
-                padding: 0.25em 0.38em;
-                position: relative;
-                text-decoration: none;
-                border-radius: 4px;
-                border-width: 1px;
-                border-style: solid;
-                border-color: rgb(230, 234, 241);
-                border-image: initial;
-            }} 
-            #{button_id}:hover {{
-                border-color: rgb(246, 51, 102);
-                color: rgb(246, 51, 102);
-            }}
-            #{button_id}:active {{
-                box-shadow: none;
-                background-color: rgb(246, 51, 102);
-                color: white;
-                }}
-        </style> """
-
-    dl_link = (
-        custom_css + f'<a download="{download_filename}" id="{button_id}" '
-        f'href="data:file/txt;base64,{b64}">{button_text}</a><br><br>'
-    )
-    return dl_link
 
 
 def main():
@@ -298,12 +227,14 @@ def main():
         if os.path.exists(file_name):
             with open(file_name, "rb") as f:
                 s = f.read()
-                download_button_str = download_button(s, file_name, "Download EPW")
-                if download_button_str:
-                    st.success("Data successfully processed! Click below to download.")
-                    st.markdown(download_button_str, unsafe_allow_html=True)
-                else:
-                    st.error("Failed to generate download button.")
+                st.success("Data successfully processed! Click below to download.")
+                st.download_button(
+                    label="Download EPW",
+                    data=s,
+                    file_name=file_name,
+                    mime="text/plain",
+                    type="primary"
+                )
         else:
             st.error("Please make sure that NREL is able to deliver data for the location and year your provided.")
         st.stop()
