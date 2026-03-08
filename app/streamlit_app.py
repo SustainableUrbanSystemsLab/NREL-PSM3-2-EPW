@@ -38,7 +38,7 @@ def _load_api_key() -> Optional[str]:
     """
     # 1. Secrets
     try:
-        if st.secrets.get("APIKEY"):
+        if "APIKEY" in st.secrets:
             return st.secrets.get("APIKEY")
     except Exception:
         pass
@@ -118,33 +118,35 @@ def main():
 
     # API Key Handling
     default_api_key = _load_api_key()
-    api_key_override = st.text_input(
-        "Optional: provide your own API key (used if set):",
-        value="",
-        type="password",
-    )
-
     api_key = ""
     api_key_source = "none"
 
-    if api_key_override:
-        api_key = api_key_override
-        api_key_source = "user"
-        st.success("User API key loaded.")
-    elif default_api_key:
-        api_key = default_api_key
-        api_key_source = "default"
+    with st.expander("🔑 API Key Configuration", expanded=not bool(default_api_key)):
+        api_key_override = st.text_input(
+            "Provide your own NREL API key (optional):",
+            value="",
+            type="password",
+            help="Overrides the default API key if provided."
+        )
 
-        # Verify Hash
-        key_hash = hashlib.sha256(api_key.strip().encode()).hexdigest()
-        if key_hash == VALID_API_KEY_HASH:
-            st.success("Default API key loaded (Verified).")
+        if api_key_override:
+            api_key = api_key_override
+            api_key_source = "user"
+            st.success("User API key loaded.")
+        elif default_api_key:
+            api_key = default_api_key
+            api_key_source = "default"
+
+            # Verify Hash
+            key_hash = hashlib.sha256(api_key.strip().encode()).hexdigest()
+            if key_hash == VALID_API_KEY_HASH:
+                st.success("Default API key loaded (Verified).")
+            else:
+                st.warning("Default API key loaded (Unverified).")
         else:
-            st.warning("Default API key loaded (Unverified).")
-    else:
-        st.error("No API key loaded.")
+            st.error("No API key loaded. Please provide one above.")
 
-    st.markdown("Please provide _Lat_, _Lon_, _Location_, and _Year_.")
+    st.markdown("### Location & Time Details")
 
     # Show a map to pick lat/lon
     st.write("Click on the map to select a location:")
@@ -167,15 +169,20 @@ def main():
         if loc_name != "Unknown Location":
             default_location = loc_name
 
-    lat = st.text_input("Lat:", value=default_lat, help="Latitude of the location in decimal degrees (e.g., 33.770)")
-    lon = st.text_input("Lon:", value=default_lon, help="Longitude of the location in decimal degrees (e.g., -84.3824)")
-    location = st.text_input("Location (just used to name the file):", value=default_location, help="A descriptive name for the location, used to generate the output filename")
-    year = st.text_input("Year (e.g., 2012, tmy, tmy-2024):", value="tmy", help="A specific year (>=1998) or a TMY identifier like 'tmy' or 'tmy-2024'")
+    col1, col2 = st.columns(2)
+    with col1:
+        lat = st.text_input("Latitude", value=default_lat, help="Latitude of the location in decimal degrees (e.g., 33.770)")
+    with col2:
+        lon = st.text_input("Longitude", value=default_lon, help="Longitude of the location in decimal degrees (e.g., -84.3824)")
 
-    if st.button("Request from NREL", type="primary", help="Initiates request to NREL API to download Epw file"):
-        if not api_key:
-            st.error("Please provide a valid API key.")
-            st.stop()
+    col3, col4 = st.columns(2)
+    with col3:
+        location = st.text_input("Location Name", value=default_location, placeholder="e.g., Atlanta", help="A descriptive name for the location, used to generate the output filename")
+    with col4:
+        year = st.text_input("Year", value="tmy", placeholder="e.g., 2012, tmy, tmy-2024", help="A specific year (>=1998) or a TMY identifier like 'tmy' or 'tmy-2024'")
+
+    button_help = "Initiates request to NREL API to download EPW file" if api_key else "Please provide an API key above to enable this button"
+    if st.button("Request from NREL", type="primary", help=button_help, disabled=not bool(api_key), icon=":material/cloud_download:"):
 
         current_year = datetime.now().year
         year_str = str(year).strip()
