@@ -171,9 +171,9 @@ def main():
 
     col1, col2 = st.columns(2)
     with col1:
-        lat = st.text_input("Latitude", value=default_lat, help="Latitude of the location in decimal degrees (e.g., 33.770)")
+        lat = st.number_input("Latitude", min_value=-90.0, max_value=90.0, value=float(default_lat), format="%.4f", help="Latitude of the location in decimal degrees (e.g., 33.770)")
     with col2:
-        lon = st.text_input("Longitude", value=default_lon, help="Longitude of the location in decimal degrees (e.g., -84.3824)")
+        lon = st.number_input("Longitude", min_value=-180.0, max_value=180.0, value=float(default_lon), format="%.4f", help="Longitude of the location in decimal degrees (e.g., -84.3824)")
 
     col3, col4 = st.columns(2)
     with col3:
