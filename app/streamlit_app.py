@@ -36,19 +36,25 @@ def _load_api_key() -> Optional[str]:
     3. local 'api_key' file
     4. local '.env' file
     """
+    cwd = os.getcwd()
+
     # 1. Secrets
-    try:
-        if "APIKEY" in st.secrets:
-            return st.secrets.get("APIKEY")
-    except Exception:
-        pass
+    # Check if secrets file exists to avoid Streamlit rendering a missing secrets warning in the UI
+    secrets_paths = [
+        os.path.join(cwd, ".streamlit", "secrets.toml"),
+        os.path.join(os.path.expanduser("~"), ".streamlit", "secrets.toml")
+    ]
+    if any(os.path.isfile(p) for p in secrets_paths):
+        try:
+            if "APIKEY" in st.secrets:
+                return st.secrets.get("APIKEY")
+        except Exception:
+            pass
 
     # 2. Environment Variable
     api_key = os.environ.get("APIKEY")
     if api_key:
         return api_key
-
-    cwd = os.getcwd()
 
     # 3. api_key file
     api_key_path = os.path.join(cwd, "api_key")

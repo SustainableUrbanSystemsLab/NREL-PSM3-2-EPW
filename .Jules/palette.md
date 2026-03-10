@@ -7,3 +7,6 @@
 ## 2024-05-18 - Replacing Text Inputs with Number Inputs for Coordinates
 **Learning:** Using generic text inputs for numeric fields like latitude and longitude forces users to manually format data and increases the likelihood of invalid submissions (e.g. typos, out of bounds coordinates). This causes a poor user experience as errors might only be caught upon submission.
 **Action:** When capturing numeric data, especially bounded data like coordinates, always prefer native `st.number_input`. Utilize `min_value`, `max_value`, and `format` arguments to proactively enforce constraints, provide up/down stepper controls, and guarantee cleanly formatted float inputs.
+## 2024-05-20 - Suppressing Streamlit's Missing Secrets Warning
+**Learning:** Accessing `st.secrets` directly when a `.streamlit/secrets.toml` file does not exist triggers an ugly, unavoidable pink error trace in the Streamlit UI, creating a jarring first impression for new users setting up the project locally.
+**Action:** When retrieving optional API keys or configurations from Streamlit's secrets manager, proactively check for the existence of `secrets.toml` files (e.g., using `os.path.isfile()` for `./.streamlit/secrets.toml` and `~/.streamlit/secrets.toml`) before accessing `st.secrets` to gracefully handle unconfigured environments and maintain a clean user interface.
