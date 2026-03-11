@@ -84,7 +84,13 @@ def _build_all_data(row_count, include_time_columns=True, bad_time=False):
 
 
 def _mock_read_csv(all_data):
-    def _reader(*_args, **_kwargs):
+    def _reader(*_args, nrows=None, skiprows=None, **_kwargs):
+        if nrows is not None:
+            return all_data.iloc[:nrows].copy()
+        if skiprows is not None:
+            df = all_data.iloc[skiprows:].copy()
+            df.columns = all_data.iloc[skiprows - 1]
+            return df
         return all_data.copy()
 
     return _reader
