@@ -10,3 +10,6 @@
 ## 2024-05-20 - Suppressing Streamlit's Missing Secrets Warning
 **Learning:** Accessing `st.secrets` directly when a `.streamlit/secrets.toml` file does not exist triggers an ugly, unavoidable pink error trace in the Streamlit UI, creating a jarring first impression for new users setting up the project locally.
 **Action:** When retrieving optional API keys or configurations from Streamlit's secrets manager, proactively check for the existence of `secrets.toml` files (e.g., using `os.path.isfile()` for `./.streamlit/secrets.toml` and `~/.streamlit/secrets.toml`) before accessing `st.secrets` to gracefully handle unconfigured environments and maintain a clean user interface.
+## 2025-03-11 - Adding Inline Validation to Disable Submit Buttons
+**Learning:** Displaying form validation errors only after a user clicks "Submit" leads to a frustrating experience. In Streamlit, using `st.stop()` to halt execution after a button click makes the UI feel unresponsive because the button remains clickable even when inputs are clearly invalid.
+**Action:** Implement real-time inline validation by evaluating the state of input fields *before* the submit button is rendered. Use this state to dynamically set the `disabled` parameter on the submit button and provide contextual feedback via the `help` parameter explaining exactly why the button is disabled.

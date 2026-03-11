@@ -42,7 +42,7 @@ def _load_api_key() -> Optional[str]:
     # Check if secrets file exists to avoid Streamlit rendering a missing secrets warning in the UI
     secrets_paths = [
         os.path.join(cwd, ".streamlit", "secrets.toml"),
-        os.path.join(os.path.expanduser("~"), ".streamlit", "secrets.toml")
+        os.path.join(os.path.expanduser("~"), ".streamlit", "secrets.toml"),
     ]
     if any(os.path.isfile(p) for p in secrets_paths):
         try:
@@ -83,9 +83,7 @@ def get_location_name(lat: float, lon: float) -> str:
     Returns a meaningful location name or 'Unknown Location' if it fails.
     """
     url = f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}"
-    headers = {
-        "User-Agent": "NREL-PSM3-2-EPW-App/4.0.0"
-    }
+    headers = {"User-Agent": "NREL-PSM3-2-EPW-App/4.0.0"}
     try:
         response = requests.get(url, headers=headers, timeout=5)
         response.raise_for_status()
@@ -93,7 +91,9 @@ def get_location_name(lat: float, lon: float) -> str:
 
         if "address" in data:
             addr = data["address"]
-            city = addr.get("city") or addr.get("town") or addr.get("village") or addr.get("hamlet") or addr.get("county")
+            city = (
+                addr.get("city") or addr.get("town") or addr.get("village") or addr.get("hamlet") or addr.get("county")
+            )
             state = addr.get("state")
             country = addr.get("country")
 
@@ -132,7 +132,7 @@ def main():
             "Provide your own NREL API key (optional):",
             value="",
             type="password",
-            help="Overrides the default API key if provided."
+            help="Overrides the default API key if provided.",
         )
 
         if api_key_override:
@@ -177,42 +177,86 @@ def main():
 
     col1, col2 = st.columns(2)
     with col1:
-        lat = st.number_input("Latitude", min_value=-90.0, max_value=90.0, value=float(default_lat), format="%.4f", help="Latitude of the location in decimal degrees (e.g., 33.770)")
+        lat = st.number_input(
+            "Latitude",
+            min_value=-90.0,
+            max_value=90.0,
+            value=float(default_lat),
+            format="%.4f",
+            help="Latitude of the location in decimal degrees (e.g., 33.770)",
+        )
     with col2:
-        lon = st.number_input("Longitude", min_value=-180.0, max_value=180.0, value=float(default_lon), format="%.4f", help="Longitude of the location in decimal degrees (e.g., -84.3824)")
+        lon = st.number_input(
+            "Longitude",
+            min_value=-180.0,
+            max_value=180.0,
+            value=float(default_lon),
+            format="%.4f",
+            help="Longitude of the location in decimal degrees (e.g., -84.3824)",
+        )
 
     col3, col4 = st.columns(2)
     with col3:
-        location = st.text_input("Location Name", value=default_location, placeholder="e.g., Atlanta", help="A descriptive name for the location, used to generate the output filename")
+        location = st.text_input(
+            "Location Name",
+            value=default_location,
+            placeholder="e.g., Atlanta",
+            help="A descriptive name for the location, used to generate the output filename",
+        )
     with col4:
-        year = st.text_input("Year", value="tmy", placeholder="e.g., 2012, tmy, tmy-2024", help="A specific year (>=1998) or a TMY identifier like 'tmy' or 'tmy-2024'")
+        year = st.text_input(
+            "Year",
+            value="tmy",
+            placeholder="e.g., 2012, tmy, tmy-2024",
+            help="A specific year (>=1998) or a TMY identifier like 'tmy' or 'tmy-2024'",
+        )
 
-    button_help = "Initiates request to NREL API to download EPW file" if api_key else "Please provide an API key above to enable this button"
-    if st.button("Request from NREL", type="primary", help=button_help, disabled=not bool(api_key), icon=":material/cloud_download:"):
+    current_year = datetime.now().year
+    year_str = str(year).strip()
+    year_is_valid = True
+    year_warning = ""
 
-        current_year = datetime.now().year
-        year_str = str(year).strip()
+    # Basic Year Validation
+    if year_str.isdigit():
+        year_int = int(year_str)
+        if year_int in (current_year, current_year - 1):
+            year_is_valid = False
+            year_warning = f"NREL does not provide data for the current year {year}. It is also unlikely that there is data availability for {year_int - 1}."
+        elif year_int < MIN_YEAR:
+            year_is_valid = False
+            year_warning = f"NREL does not provide data for the year {year}. The earliest year data is available for is {MIN_YEAR}."
+    else:
+        if not year_str.lower().startswith(("tmy", "tgy", "tdy")):
+            year_is_valid = False
+            year_warning = "Year must be a numeric year (>=1998) or a TMY name like tmy or tmy-2024."
 
-        # Basic Year Validation
-        if year_str.isdigit():
-            year_int = int(year_str)
-            if year_int in (current_year, current_year - 1):
-                st.warning(
-                    f"NREL does not provide data for the current year {year}. "
-                    f"It is also unlikely that there is data availability for {year_int - 1}."
-                )
-                st.stop()
-            elif year_int < MIN_YEAR:
-                st.warning(
-                    f"NREL does not provide data for the year {year}. "
-                    f"The earliest year data is available for is {MIN_YEAR}."
-                )
-                st.stop()
-        else:
-            if not year_str.lower().startswith(("tmy", "tgy", "tdy")):
-                st.warning("Year must be a numeric year (>=1998) or a TMY name like tmy or tmy-2024.")
-                st.stop()
+    if year_warning:
+        st.warning(year_warning, icon="⚠️")
 
+    location_str = str(location).strip()
+    location_is_valid = bool(location_str)
+
+    if not location_is_valid:
+        st.warning("Please provide a location name.", icon="⚠️")
+
+    button_disabled = not bool(api_key) or not year_is_valid or not location_is_valid
+
+    if not bool(api_key):
+        button_help = "Please provide an API key above to enable this button"
+    elif not location_is_valid:
+        button_help = "Please provide a location name to enable this button"
+    elif not year_is_valid:
+        button_help = "Please provide a valid year to enable this button"
+    else:
+        button_help = "Initiates request to NREL API to download EPW file"
+
+    if st.button(
+        "Request from NREL",
+        type="primary",
+        help=button_help,
+        disabled=button_disabled,
+        icon=":material/cloud_download:",
+    ):
         with st.spinner("Requesting data from NREL..."):
             try:
                 file_name = download_epw(
@@ -241,13 +285,7 @@ def main():
             with open(file_name, "rb") as f:
                 s = f.read()
                 st.success("Data successfully processed! Click below to download.")
-                st.download_button(
-                    label="Download EPW",
-                    data=s,
-                    file_name=file_name,
-                    mime="text/plain",
-                    type="primary"
-                )
+                st.download_button(label="Download EPW", data=s, file_name=file_name, mime="text/plain", type="primary")
         else:
             st.error("Please make sure that NREL is able to deliver data for the location and year your provided.")
         st.stop()
