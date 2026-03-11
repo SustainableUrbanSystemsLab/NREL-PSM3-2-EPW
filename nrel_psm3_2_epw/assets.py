@@ -97,9 +97,18 @@ def download_epw(
 
         # Parse the downloaded content instead of requesting the URL again
         # This prevents pandas from making a second HTTP request for the same data
-        all_data = pd.read_csv(io.BytesIO(r.content))
 
-        if all_data is None:
+        # Bolt Optimization:
+        # Instead of parsing the entire CSV in one go, which causes pandas to infer
+        # all columns as string `object` dtypes due to the first metadata row, we
+        # parse the metadata and actual dataset separately. This allows pandas to
+        # use highly optimized C parsing to natively infer the correct numeric types
+        # (int64/float64) for the dataset, massively speeding up DataFrame construction
+        # and downstream calculations.
+        metadata_df = pd.read_csv(io.BytesIO(r.content), nrows=1)
+        df = pd.read_csv(io.BytesIO(r.content), skiprows=2)
+
+        if df is None or metadata_df is None:
             raise RuntimeError("Could not retrieve any data")
 
     except requests.exceptions.ConnectionError as errc:
@@ -112,23 +121,20 @@ def download_epw(
         print("Oops: Something Else", err)
         raise
 
-    data_rows = all_data.shape[0] - 2
+    data_rows = df.shape[0]
     if data_rows <= 0:
         raise RuntimeError("No data rows returned from NREL")
 
     # Take first row for metadata
-    metadata = all_data.iloc[0, :]
-
-    # Return all but first 2 lines of csv to get data:
-    df = all_data.iloc[2:, :]
-    df.columns = all_data.iloc[1]
+    metadata = metadata_df.iloc[0, :]
 
     time_columns = ["Year", "Month", "Day", "Hour", "Minute"]
     if is_tmy:
         if not all(col in df.columns for col in time_columns):
             raise RuntimeError("TMY response missing expected timestamp columns")
-        time_frame = df[time_columns].apply(pd.to_numeric, errors="coerce")
-        datetimes = pd.to_datetime(time_frame, errors="coerce")
+
+        # Because df now has correct numeric types, we don't need `apply(pd.to_numeric)`
+        datetimes = pd.to_datetime(df[time_columns], errors="coerce")
         if datetimes.isnull().any():
             raise RuntimeError("Could not parse timestamps from TMY response")
         datetimes = pd.DatetimeIndex(datetimes)
@@ -164,43 +170,46 @@ def download_epw(
     # Avoid pandas `.to_numpy()` and pandas `.multiply()` overhead during DataFrame construction.
     # Using underlying numpy `.values` directly, computing operations on the numpy arrays,
     # and preventing implicit dataframe copying via `copy=False` further halves construction time.
-    epw_df = pd.DataFrame({
-        "Year": datetimes.year.astype(int),
-        "Month": datetimes.month.astype(int),
-        "Day": datetimes.day.astype(int),
-        "Hour": datetimes.hour.astype(int) + 1,
-        "Minute": datetimes.minute.astype(int),
-        "Data Source and Uncertainty Flags": "'Created with NREL PSM v4 input data'",
-        "Dry Bulb Temperature": df["Temperature"].values,
-        "Dew Point Temperature": df["Dew Point"].values,
-        "Relative Humidity": df["Relative Humidity"].values,
-        "Atmospheric Station Pressure": (df["Pressure"].values.astype(int) * 100),
-        "Extraterrestrial Horizontal Radiation": 9999,
-        "Extraterrestrial Direct Normal Radiation": 9999,
-        "Horizontal Infrared Radiation Intensity": 9999,
-        "Global Horizontal Radiation": df["GHI"].values,
-        "Direct Normal Radiation": df["DNI"].values,
-        "Diffuse Horizontal Radiation": df["DHI"].values,
-        "Global Horizontal Illuminance": 999999,
-        "Direct Normal Illuminance": 999999,
-        "Diffuse Horizontal Illuminance": 999999,
-        "Zenith Luminance": 9999,
-        "Wind Direction": df["Wind Direction"].values,
-        "Wind Speed": df["Wind Speed"].values,
-        "Total Sky Cover": df["Cloud Type"].values,
-        "Opaque Sky Cover": df["Cloud Type"].values,
-        "Visibility": 9999,
-        "Ceiling Height": 99999,
-        "Present Weather Observation": "",
-        "Present Weather Codes": "",
-        "Precipitable Water": df["Precipitable Water"].values,
-        "Aerosol Optical Depth": 0.999,
-        "Snow Depth": 999,
-        "Days Since Last Snowfall": 99,
-        "Albedo": df["Surface Albedo"].values,
-        "Liquid Precipitation Depth": 999,
-        "Liquid Precipitation Quantity": 99,
-    }, copy=False)
+    epw_df = pd.DataFrame(
+        {
+            "Year": datetimes.year.astype(int),
+            "Month": datetimes.month.astype(int),
+            "Day": datetimes.day.astype(int),
+            "Hour": datetimes.hour.astype(int) + 1,
+            "Minute": datetimes.minute.astype(int),
+            "Data Source and Uncertainty Flags": "'Created with NREL PSM v4 input data'",
+            "Dry Bulb Temperature": df["Temperature"].values,
+            "Dew Point Temperature": df["Dew Point"].values,
+            "Relative Humidity": df["Relative Humidity"].values,
+            "Atmospheric Station Pressure": (df["Pressure"].values.astype(float).astype(int) * 100),
+            "Extraterrestrial Horizontal Radiation": 9999,
+            "Extraterrestrial Direct Normal Radiation": 9999,
+            "Horizontal Infrared Radiation Intensity": 9999,
+            "Global Horizontal Radiation": df["GHI"].values,
+            "Direct Normal Radiation": df["DNI"].values,
+            "Diffuse Horizontal Radiation": df["DHI"].values,
+            "Global Horizontal Illuminance": 999999,
+            "Direct Normal Illuminance": 999999,
+            "Diffuse Horizontal Illuminance": 999999,
+            "Zenith Luminance": 9999,
+            "Wind Direction": df["Wind Direction"].values,
+            "Wind Speed": df["Wind Speed"].values,
+            "Total Sky Cover": df["Cloud Type"].values,
+            "Opaque Sky Cover": df["Cloud Type"].values,
+            "Visibility": 9999,
+            "Ceiling Height": 99999,
+            "Present Weather Observation": "",
+            "Present Weather Codes": "",
+            "Precipitable Water": df["Precipitable Water"].values,
+            "Aerosol Optical Depth": 0.999,
+            "Snow Depth": 999,
+            "Days Since Last Snowfall": 99,
+            "Albedo": df["Surface Albedo"].values,
+            "Liquid Precipitation Depth": 999,
+            "Liquid Precipitation Quantity": 99,
+        },
+        copy=False,
+    )
 
     out.dataframe = epw_df
 
