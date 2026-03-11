@@ -1,6 +1,20 @@
 # CHANGELOG
 
 
+## v0.2.0 (2026-03-11)
+
+### Features
+
+- Read version dynamically from package metadata
+  ([`cf2d01a`](https://github.com/SustainableUrbanSystemsLab/NREL-PSM3-2-EPW/commit/cf2d01aef82a394dc1cf8d3e64106b2ca1e59f26))
+
+Replace hardcoded "4.0.0" version in the Streamlit UI and User-Agent header with the installed
+  package version via importlib.metadata. This ensures the displayed version stays in sync with
+  semantic-release.
+
+https://claude.ai/code/session_01SqjYWGRjhsP5CdjNCVyqRQ
+
+
 ## v0.1.0 (2026-03-11)
 
 ### Bug Fixes
