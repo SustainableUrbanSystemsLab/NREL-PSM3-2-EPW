@@ -275,6 +275,12 @@ def main():
                 s = f.read()
                 st.success("Data successfully processed! Click below to download.")
                 st.download_button(label="Download EPW", data=s, file_name=file_name, mime="text/plain", type="primary")
+
+            st.markdown("---")
+            st.markdown("### Visualize your EPW file")
+            st.markdown("Once downloaded, you can visualize your EPW file using these online tools:")
+            st.markdown("- [EPWvis](https://mdahlhausen.github.io/epwvis/)")
+            st.markdown("- [CBE Clima Tool](https://clima.cbe.berkeley.edu/)")
         else:
             st.error("Please make sure that NREL is able to deliver data for the location and year your provided.")
         st.stop()
