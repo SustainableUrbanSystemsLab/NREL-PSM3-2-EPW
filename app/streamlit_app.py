@@ -1,12 +1,15 @@
 import os
 import hashlib
 from datetime import datetime
+from importlib.metadata import version
 from typing import Optional
 
 import requests
 import streamlit as st
 import folium
 from streamlit_folium import st_folium
+
+__version__ = version("nrel-psm3-2-epw")
 
 from nrel_psm3_2_epw.assets import download_epw
 
@@ -83,7 +86,7 @@ def get_location_name(lat: float, lon: float) -> str:
     Returns a meaningful location name or 'Unknown Location' if it fails.
     """
     url = f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}"
-    headers = {"User-Agent": "NREL-PSM3-2-EPW-App/4.0.0"}
+    headers = {"User-Agent": f"NREL-PSM3-2-EPW-App/{__version__}"}
     try:
         response = requests.get(url, headers=headers, timeout=5)
         response.raise_for_status()
@@ -115,10 +118,10 @@ def get_location_name(lat: float, lon: float) -> str:
 
 
 def main():
-    st.markdown("""
-    # NREL-PSM3-2-EPW  `v4.0.0`
+    st.markdown(f"""
+    # NREL-PSM3-2-EPW  `v{__version__}`
 
-    This script converts climate data from NREL to the EnergyPlus EPW format.  
+    This script converts climate data from NREL to the EnergyPlus EPW format.
     If you do not have an API key, please request one [here](https://developer.nrel.gov/signup).
     """)
 
