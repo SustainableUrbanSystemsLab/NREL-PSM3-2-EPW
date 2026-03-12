@@ -170,13 +170,14 @@ def download_epw(
     # Avoid pandas `.to_numpy()` and pandas `.multiply()` overhead during DataFrame construction.
     # Using underlying numpy `.values` directly, computing operations on the numpy arrays,
     # and preventing implicit dataframe copying via `copy=False` further halves construction time.
+    # Furthermore, using `.values` on `pd.DatetimeIndex` properties avoids expensive pandas dispatch and cast overhead.
     epw_df = pd.DataFrame(
         {
-            "Year": datetimes.year.astype(int),
-            "Month": datetimes.month.astype(int),
-            "Day": datetimes.day.astype(int),
-            "Hour": datetimes.hour.astype(int) + 1,
-            "Minute": datetimes.minute.astype(int),
+            "Year": datetimes.year.values,
+            "Month": datetimes.month.values,
+            "Day": datetimes.day.values,
+            "Hour": datetimes.hour.values + 1,
+            "Minute": datetimes.minute.values,
             "Data Source and Uncertainty Flags": "'Created with NREL PSM v4 input data'",
             "Dry Bulb Temperature": df["Temperature"].values,
             "Dew Point Temperature": df["Dew Point"].values,

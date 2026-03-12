@@ -622,7 +622,7 @@ wheels = [
 
 [[package]]
 name = "nrel-psm3-2-epw"
-version = "4.0.0"
+version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
