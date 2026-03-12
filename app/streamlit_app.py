@@ -214,41 +214,45 @@ def main():
             help="A specific year (>=1998) or a TMY identifier like 'tmy' or 'tmy-2024'",
         )
 
-    button_help = (
-        "Initiates request to NREL API to download EPW file"
-        if api_key
-        else "Please provide an API key above to enable this button"
-    )
+    current_year = datetime.now().year
+    year_str = str(year).strip()
+    year_is_valid = True
+    year_warning = ""
+
+    # Basic Year Validation
+    if year_str.isdigit():
+        year_int = int(year_str)
+        if year_int in (current_year, current_year - 1):
+            year_is_valid = False
+            year_warning = (
+                f"NREL does not provide data for the current year {year}. "
+                f"It is also unlikely that there is data availability for {year_int - 1}."
+            )
+        elif year_int < MIN_YEAR:
+            year_is_valid = False
+            year_warning = (
+                f"NREL does not provide data for the year {year}. "
+                f"The earliest year data is available for is {MIN_YEAR}."
+            )
+    else:
+        if not year_str.lower().startswith(("tmy", "tgy", "tdy")):
+            year_is_valid = False
+            year_warning = "Year must be a numeric year (>=1998) or a TMY name like tmy or tmy-2024."
+
+    if not api_key:
+        button_help = "Please provide an API key above to enable this button"
+    elif not year_is_valid:
+        button_help = year_warning
+    else:
+        button_help = "Initiates request to NREL API to download EPW file"
+
     if st.button(
         "Request from NREL",
         type="primary",
         help=button_help,
-        disabled=not bool(api_key),
+        disabled=not bool(api_key) or not year_is_valid,
         icon=":material/cloud_download:",
     ):
-        current_year = datetime.now().year
-        year_str = str(year).strip()
-
-        # Basic Year Validation
-        if year_str.isdigit():
-            year_int = int(year_str)
-            if year_int in (current_year, current_year - 1):
-                st.warning(
-                    f"NREL does not provide data for the current year {year}. "
-                    f"It is also unlikely that there is data availability for {year_int - 1}."
-                )
-                st.stop()
-            elif year_int < MIN_YEAR:
-                st.warning(
-                    f"NREL does not provide data for the year {year}. "
-                    f"The earliest year data is available for is {MIN_YEAR}."
-                )
-                st.stop()
-        else:
-            if not year_str.lower().startswith(("tmy", "tgy", "tdy")):
-                st.warning("Year must be a numeric year (>=1998) or a TMY name like tmy or tmy-2024.")
-                st.stop()
-
         with st.spinner("Requesting data from NREL..."):
             try:
                 file_name = download_epw(
