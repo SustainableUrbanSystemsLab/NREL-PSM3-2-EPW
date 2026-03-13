@@ -180,21 +180,16 @@ def main():
 
         # UX Improvement: Provide subtle toast feedback when a new location is clicked on the map
         click_id = f"{default_lat}-{default_lon}"
-        if st.session_state.get("last_map_click") != click_id:
-            st.session_state["last_map_click"] = click_id
+        prev_click_id = st.session_state.get("last_map_click")
+        if prev_click_id is not None and prev_click_id != click_id:
             if loc_name != "Unknown Location":
                 st.toast(f"Location updated to **{loc_name}**", icon="📍")
             else:
-                st.toast(f"Location updated to coordinates: {default_lat:.4f}, {default_lon:.4f}", icon="📍")
-
-        # UX Improvement: Provide subtle toast feedback when a new location is clicked on the map
-        click_id = f"{default_lat}-{default_lon}"
-        if st.session_state.get("last_map_click") != click_id:
-            st.session_state["last_map_click"] = click_id
-            if loc_name != "Unknown Location":
-                st.toast(f"Location updated to **{loc_name}**", icon="📍")
-            else:
-                st.toast(f"Location updated to coordinates: {default_lat:.4f}, {default_lon:.4f}", icon="📍")
+                st.toast(
+                    f"Location updated to coordinates: {default_lat:.4f}, {default_lon:.4f}",
+                    icon="📍",
+                )
+        st.session_state["last_map_click"] = click_id
 
     col1, col2 = st.columns(2)
     with col1:
