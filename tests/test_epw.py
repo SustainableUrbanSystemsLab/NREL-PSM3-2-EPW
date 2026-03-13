@@ -84,3 +84,13 @@ def test_epw_read_handles_empty_lines(tmp_path):
     assert loaded.headers["LOCATION"] == ["City", "State"]
     assert loaded.headers["DATA PERIODS"] == ["1"]
     assert not loaded.dataframe.empty
+
+    # Test old inner methods to preserve 100% coverage
+    headers = loaded._read_headers(file_path)
+    assert headers["LOCATION"] == ["City", "State"]
+    first_row = loaded._first_row_with_climate_data(file_path)
+    assert first_row == 3
+
+    df = loaded._read_data(file_path)
+    assert not df.empty
+    assert df["Year"].iloc[0] == 2020

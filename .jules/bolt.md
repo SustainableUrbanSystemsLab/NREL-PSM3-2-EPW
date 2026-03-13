@@ -21,3 +21,7 @@
 ## 2026-03-12 - Pandas DatetimeIndex Property Overhead
 **Learning:** Accessing properties like `.year`, `.month`, `.hour` on a `pd.DatetimeIndex` and calling `.astype(int)` returns a pandas `Index` (or Series) object and incurs significant pandas dispatch overhead during repeated operations or DataFrame construction.
 **Action:** Append `.values` (e.g., `datetimes.year.values`) when extracting these properties. This yields a raw NumPy `int32` array immediately, completely avoiding the `.astype(int)` cast and pandas dispatch overhead, speeding up array creation by ~25-30%.
+
+## 2024-03-13 - Optimize EPW File Parsing by Removing Redundant I/O Passes
+**Learning:** `EPW.read()` originally iterated through the file twice using `csv.reader` (once for headers, once for the data start index) before handing off to `pd.read_csv`. For large EPW files (8760+ rows), Python-level CSV iteration overhead can be a bottleneck.
+**Action:** When parsing files that require metadata extraction before vectorized loading, extract all necessary metadata (headers, first data row index) in a single Python pass. Passing the pre-computed `skiprows` index directly to `pd.read_csv` halves the preliminary iteration overhead.
