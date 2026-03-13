@@ -14,3 +14,7 @@
 ## 2026-03-12 - Using Dynamic Disabled States for Form Validation
 **Learning:** In Streamlit applications, using `st.stop()` inside button click handlers for form validation provides a poor user experience. The button remains clickable even with invalid inputs, making the UI feel unresponsive when clicked, and the error is only shown after an action is attempted.
 **Action:** Implement real-time inline validation by evaluating input states *before* the submit button is rendered. Use this evaluation state to dynamically set the button's `disabled` parameter and provide contextual validation feedback via the `help` parameter, ensuring a responsive and intuitive UI.
+
+## 2024-06-15 - Pairing Map Interactions with Toast Feedback
+**Learning:** Interactive widgets like maps (e.g., via `streamlit-folium`) update application state in the background upon interaction, but this state change is often invisible to the user until they scroll down to see updated input fields. This disconnect can cause confusion about whether the interaction was registered.
+**Action:** When capturing input from complex interactive components like maps, immediately present a brief `st.toast` notification confirming the action (e.g., displaying the reverse-geocoded location name). Use `st.session_state` to track interaction IDs to prevent duplicate toasts across unrelated application reruns.
