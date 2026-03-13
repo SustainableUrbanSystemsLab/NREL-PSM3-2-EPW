@@ -18,8 +18,36 @@ class EPW:
         Args:
             fp (str): The file path of the epw file.
         """
-        self.headers = self._read_headers(fp)
-        self.dataframe = self._read_data(fp)
+        # Bolt Optimization:
+        # _read_headers now parses both the headers and the first data row index in a single pass.
+        # This removes the need to iterate through the file a second time in _first_row_with_climate_data,
+        # halving the Python-level iteration overhead when loading EPW files.
+        headers, first_row = self._read_headers_and_first_row(fp)
+        self.headers = headers
+        self.dataframe = self._read_data(fp, first_row=first_row)
+
+    def _read_headers_and_first_row(self, fp: str) -> tuple[Dict[str, List[str]], int]:
+        """Reads the headers and identifies the first data row index of an epw file in a single pass.
+
+        Args:
+            fp (str): The file path of the epw file.
+
+        Returns:
+            tuple[Dict[str, List[str]], int]: A dictionary containing the header rows and the integer index of the first data row.
+        """
+        d = {}
+        first_row_idx = 0
+        with open(fp, newline="") as csvfile:
+            csvreader = csv.reader(csvfile, delimiter=",", quotechar='"')
+            for i, row in enumerate(csvreader):
+                if not row:
+                    continue
+                if row[0].isdigit():
+                    first_row_idx = i
+                    break
+                else:
+                    d[row[0]] = row[1:]
+        return d, first_row_idx
 
     def _read_headers(self, fp: str) -> Dict[str, List[str]]:
         """Reads the headers of an epw file.
@@ -30,23 +58,15 @@ class EPW:
         Returns:
             Dict[str, List[str]]: A dictionary containing the header rows.
         """
-        d = {}
-        with open(fp, newline="") as csvfile:
-            csvreader = csv.reader(csvfile, delimiter=",", quotechar='"')
-            for row in csvreader:
-                if not row:
-                    continue
-                if row[0].isdigit():
-                    break
-                else:
-                    d[row[0]] = row[1:]
+        d, _ = self._read_headers_and_first_row(fp)
         return d
 
-    def _read_data(self, fp: str) -> pd.DataFrame:
+    def _read_data(self, fp: str, first_row: int | None = None) -> pd.DataFrame:
         """Reads the climate data of an epw file.
 
         Args:
             fp (str): The file path of the epw file.
+            first_row (int | None): The index of the first data row. If None, it will be calculated.
 
         Returns:
             pd.DataFrame: A DataFrame containing the climate data.
@@ -89,7 +109,9 @@ class EPW:
             "Liquid Precipitation Quantity",
         ]
 
-        first_row = self._first_row_with_climate_data(fp)
+        if first_row is None:
+            first_row = self._first_row_with_climate_data(fp)
+
         df = pd.read_csv(fp, skiprows=first_row, header=None, names=names)
         return df
 
