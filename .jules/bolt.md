@@ -25,3 +25,7 @@
 ## 2024-03-13 - Optimize EPW File Parsing by Removing Redundant I/O Passes
 **Learning:** `EPW.read()` originally iterated through the file twice using `csv.reader` (once for headers, once for the data start index) before handing off to `pd.read_csv`. For large EPW files (8760+ rows), Python-level CSV iteration overhead can be a bottleneck.
 **Action:** When parsing files that require metadata extraction before vectorized loading, extract all necessary metadata (headers, first data row index) in a single Python pass. Passing the pre-computed `skiprows` index directly to `pd.read_csv` halves the preliminary iteration overhead.
+
+## 2026-03-14 - Unused DataFrame Re-indexing Overhead
+**Learning:** Calling `df.set_index()` right before constructing a new DataFrame using `df["Col"].values` creates an entirely unnecessary, complete memory copy of the original 8760-row DataFrame. Furthermore, redundant cast operations like `.astype(float).astype(int)` inside the inner loop double the cast time.
+**Action:** When mapping DataFrame values to a new DataFrame using `.values`, avoid modifying the original DataFrame structure (like setting indexes) unless the index is strictly required for alignment or subsequent vectorized operations. Also, since `read_csv` correctly infers numerical data types after bypassing metadata rows, redundant `.astype(float)` casts on numerical columns should be removed to speed up execution.
