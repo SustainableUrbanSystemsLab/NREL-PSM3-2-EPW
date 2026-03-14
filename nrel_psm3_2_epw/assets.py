@@ -141,8 +141,9 @@ def download_epw(
     else:
         datetimes = pd.date_range(f"01/01/{year_int}", periods=data_rows, freq="h")
 
-    # Set the time index in the pandas dataframe:
-    df = df.set_index(datetimes)
+    # Bolt Optimization: Avoid setting the DatetimeIndex on the pandas DataFrame
+    # since we immediately extract raw `.values` below. This saves a full copy
+    # of the 8760xN DataFrame.
 
     # See metadata for specified properties, e.g., timezone and elevation
     timezone = elevation = "0"
@@ -182,7 +183,7 @@ def download_epw(
             "Dry Bulb Temperature": df["Temperature"].values,
             "Dew Point Temperature": df["Dew Point"].values,
             "Relative Humidity": df["Relative Humidity"].values,
-            "Atmospheric Station Pressure": (df["Pressure"].values.astype(float).astype(int) * 100),
+            "Atmospheric Station Pressure": (df["Pressure"].values.astype(int) * 100),
             "Extraterrestrial Horizontal Radiation": 9999,
             "Extraterrestrial Direct Normal Radiation": 9999,
             "Horizontal Infrared Radiation Intensity": 9999,
