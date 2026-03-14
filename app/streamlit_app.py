@@ -252,6 +252,10 @@ def main():
             year_is_valid = False
             year_warning = "Year must be a numeric year (>=1998) or a TMY name like tmy or tmy-2024."
 
+    if not year_is_valid:
+        with col4:
+            st.error(year_warning, icon="⚠️")
+
     if not api_key:
         button_help = "Please provide an API key above to enable this button"
     elif not year_is_valid:
