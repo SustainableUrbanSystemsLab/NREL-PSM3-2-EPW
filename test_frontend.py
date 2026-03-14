@@ -1,15 +1,26 @@
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, expect
+import time
 
-
-def verify_frontend():
+def test_frontend():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
         page.goto("http://localhost:8501")
-        page.wait_for_timeout(5000)
+
+        # wait for app to load
+        page.wait_for_selector("text=NREL-PSM3-2-EPW")
+
+        # Find the Year input field and fill it with an invalid value
+        year_input = page.locator("input[aria-label='Year']")
+        year_input.fill("1997")
+        year_input.press("Enter")
+
+        # Wait a moment for Streamlit to rerender
+        time.sleep(2)
+
+        # Take a screenshot
         page.screenshot(path="verification.png")
         browser.close()
 
-
 if __name__ == "__main__":
-    verify_frontend()
+    test_frontend()

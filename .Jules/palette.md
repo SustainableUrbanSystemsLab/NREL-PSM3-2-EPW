@@ -18,3 +18,7 @@
 ## 2024-06-15 - Pairing Map Interactions with Toast Feedback
 **Learning:** Interactive widgets like maps (e.g., via `streamlit-folium`) update application state in the background upon interaction, but this state change is often invisible to the user until they scroll down to see updated input fields. This disconnect can cause confusion about whether the interaction was registered.
 **Action:** When capturing input from complex interactive components like maps, immediately present a brief `st.toast` notification confirming the action (e.g., displaying the reverse-geocoded location name). Use `st.session_state` to track interaction IDs to prevent duplicate toasts across unrelated application reruns.
+
+## 2024-06-18 - Inline Error Messages for Better Form Validation Feedback
+**Learning:** In Streamlit applications, relying solely on tooltips over disabled buttons to communicate form validation errors hides crucial context from the user until they attempt to interact with the disabled element.
+**Action:** Implement real-time inline validation feedback by evaluating input states *before* the submit button is rendered and displaying explicit error or warning messages directly adjacent to the relevant input fields using `st.error` or `st.warning`.
