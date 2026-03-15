@@ -22,3 +22,7 @@
 ## 2024-06-18 - Inline Error Messages for Better Form Validation Feedback
 **Learning:** In Streamlit applications, relying solely on tooltips over disabled buttons to communicate form validation errors hides crucial context from the user until they attempt to interact with the disabled element.
 **Action:** Implement real-time inline validation feedback by evaluating input states *before* the submit button is rendered and displaying explicit error or warning messages directly adjacent to the relevant input fields using `st.error` or `st.warning`.
+
+## 2026-03-15 - Dynamic Disabled States Need Explicit Inline Feedback
+**Learning:** In Streamlit apps, relying solely on a button's `help` tooltip to explain *why* it is disabled (e.g., missing API key) is completely inaccessible to touch device users (mobile/tablet) and often missed by keyboard-only users.
+**Action:** When a primary action button is disabled due to missing prerequisites, always provide an explicit, visible inline message (e.g., `st.warning` or `st.error`) near the button or the missing input field to ensure all users immediately understand the required action.
