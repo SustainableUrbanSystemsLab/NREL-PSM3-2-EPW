@@ -258,6 +258,7 @@ def main():
 
     if not api_key:
         button_help = "Please provide an API key above to enable this button"
+        st.warning("Please provide an API key in the 'API Key Configuration' section above to request data.", icon="🔑")
     elif not year_is_valid:
         button_help = year_warning
     else:
@@ -298,7 +299,14 @@ def main():
             with open(file_name, "rb") as f:
                 s = f.read()
                 st.success("Data successfully processed! Click below to download.")
-                st.download_button(label="Download EPW", data=s, file_name=file_name, mime="text/plain", type="primary")
+                st.download_button(
+                    label="Download EPW",
+                    data=s,
+                    file_name=file_name,
+                    mime="text/plain",
+                    type="primary",
+                    icon=":material/download:",
+                )
 
             st.markdown("---")
             st.markdown("### Visualize your EPW file")
