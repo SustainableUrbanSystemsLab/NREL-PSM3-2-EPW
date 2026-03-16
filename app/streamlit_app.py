@@ -161,7 +161,7 @@ def main():
     st.write("Click on the map to select a location:")
     m = folium.Map(location=[33.770, -84.3824], zoom_start=4)
     m.add_child(folium.LatLngPopup())
-    map_data = st_folium(m, height=400, width=700)
+    map_data = st_folium(m, height=400, use_container_width=True)
 
     # Initialize lat/lon with defaults
     default_lat = 33.770

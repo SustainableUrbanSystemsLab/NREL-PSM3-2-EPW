@@ -26,3 +26,7 @@
 ## 2026-03-15 - Dynamic Disabled States Need Explicit Inline Feedback
 **Learning:** In Streamlit apps, relying solely on a button's `help` tooltip to explain *why* it is disabled (e.g., missing API key) is completely inaccessible to touch device users (mobile/tablet) and often missed by keyboard-only users.
 **Action:** When a primary action button is disabled due to missing prerequisites, always provide an explicit, visible inline message (e.g., `st.warning` or `st.error`) near the button or the missing input field to ensure all users immediately understand the required action.
+
+## 2026-03-20 - Responsive Sizing for Interactive Map Components
+**Learning:** Hardcoding a fixed pixel width (e.g., `width=700`) for large interactive UI components like maps (e.g., `streamlit-folium`) causes significant usability issues on smaller screens (mobile/tablet) by introducing forced horizontal scrolling and breaking responsive layouts. Conversely, it wastes available screen real estate on larger desktop monitors.
+**Action:** When integrating large interactive components in Streamlit apps, explicitly opt-in to fluid, responsive sizing by using `use_container_width=True` instead of specifying static pixel dimensions. This ensures the component gracefully adapts to all device sizes, significantly improving mobile accessibility and desktop presentation.
