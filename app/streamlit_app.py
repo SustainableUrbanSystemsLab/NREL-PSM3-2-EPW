@@ -117,6 +117,19 @@ def get_location_name(lat: float, lon: float) -> str:
     return "Unknown Location"
 
 
+@st.cache_resource
+def get_map():
+    """
+    Bolt Optimization:
+    Cache the folium map object to prevent re-instantiating it on every Streamlit rerun.
+    This saves CPU time and prevents the frontend from fully destroying and
+    re-rendering the map iframe during unrelated app interactions (like typing in text inputs).
+    """
+    m = folium.Map(location=[33.770, -84.3824], zoom_start=4)
+    m.add_child(folium.LatLngPopup())
+    return m
+
+
 def main():
     st.markdown(f"""
     # NREL-PSM3-2-EPW  `v{__version__}`
@@ -159,9 +172,12 @@ def main():
 
     # Show a map to pick lat/lon
     st.write("Click on the map to select a location:")
-    m = folium.Map(location=[33.770, -84.3824], zoom_start=4)
-    m.add_child(folium.LatLngPopup())
-    map_data = st_folium(m, height=400, use_container_width=True)
+    m = get_map()
+
+    # Bolt Optimization:
+    # Use returned_objects=["last_clicked"] to prevent Streamlit from completely rerunning
+    # the entire Python backend and frontend UI every time the user pans or zooms the map.
+    map_data = st_folium(m, height=400, use_container_width=True, returned_objects=["last_clicked"])
 
     # Initialize lat/lon with defaults
     default_lat = 33.770
