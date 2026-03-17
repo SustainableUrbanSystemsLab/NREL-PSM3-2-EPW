@@ -30,3 +30,7 @@
 ## 2026-03-20 - Responsive Sizing for Interactive Map Components
 **Learning:** Hardcoding a fixed pixel width (e.g., `width=700`) for large interactive UI components like maps (e.g., `streamlit-folium`) causes significant usability issues on smaller screens (mobile/tablet) by introducing forced horizontal scrolling and breaking responsive layouts. Conversely, it wastes available screen real estate on larger desktop monitors.
 **Action:** When integrating large interactive components in Streamlit apps, explicitly opt-in to fluid, responsive sizing by using `use_container_width=True` instead of specifying static pixel dimensions. This ensures the component gracefully adapts to all device sizes, significantly improving mobile accessibility and desktop presentation.
+
+## 2024-05-18 - Inline Validation for Forms
+**Learning:** Depending entirely on button disabled states or tooltip hints for form validation can leave users confused when fields are cleared, especially since tooltips are inaccessible on mobile devices.
+**Action:** Always provide explicit, inline feedback right next to the corresponding input fields using tools like `st.error` before disabling form submission buttons.

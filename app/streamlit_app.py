@@ -219,6 +219,9 @@ def main():
             placeholder="e.g., Atlanta",
             help="A descriptive name for the location, used to generate the output filename",
         )
+        location_is_valid = bool(str(location).strip())
+        if not location_is_valid:
+            st.error("Please provide a location name.", icon="⚠️")
     with col4:
         year = st.text_input(
             "Year",
@@ -261,6 +264,8 @@ def main():
         st.warning("Please provide an API key in the 'API Key Configuration' section above to request data.", icon="🔑")
     elif not year_is_valid:
         button_help = year_warning
+    elif not location_is_valid:
+        button_help = "Please provide a valid location name."
     else:
         button_help = "Initiates request to NREL API to download EPW file"
 
@@ -268,7 +273,7 @@ def main():
         "Request from NREL",
         type="primary",
         help=button_help,
-        disabled=not bool(api_key) or not year_is_valid,
+        disabled=not bool(api_key) or not year_is_valid or not location_is_valid,
         icon=":material/cloud_download:",
     ):
         with st.spinner("Requesting data from NREL..."):
