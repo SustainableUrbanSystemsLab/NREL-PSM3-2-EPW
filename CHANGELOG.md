@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.3.0 (2026-03-18)
+
+### Features
+
+- Proactive inline validation for API keys
+  ([`fa6ff49`](https://github.com/SustainableUrbanSystemsLab/NREL-PSM3-2-EPW/commit/fa6ff49b2592cea0c582640b98d0375e9b4c2ef9))
+
+Added inline warning when the loaded user API key does not match the standard NREL length (40 chars)
+  to prevent users from making inevitable network failures. Added emojis for better visual parsing.
+
+Co-authored-by: kastnerp <1919773+kastnerp@users.noreply.github.com>
+
+
 ## v0.2.0 (2026-03-11)
 
 ### Features
