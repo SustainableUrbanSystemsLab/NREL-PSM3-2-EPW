@@ -154,7 +154,10 @@ def main():
         if api_key_override:
             api_key = api_key_override
             api_key_source = "user"
-            st.success("User API key loaded.")
+            if len(api_key.strip()) != 40:
+                st.warning("User API key loaded, but it is not 40 characters long. NREL keys are typically exactly 40 characters.", icon="⚠️")
+            else:
+                st.success("User API key loaded.", icon="✅")
         elif default_api_key:
             api_key = default_api_key
             api_key_source = "default"
@@ -162,11 +165,11 @@ def main():
             # Verify Hash
             key_hash = hashlib.sha256(api_key.strip().encode()).hexdigest()
             if key_hash == VALID_API_KEY_HASH:
-                st.success("Default API key loaded (Verified).")
+                st.success("Default API key loaded (Verified).", icon="✅")
             else:
-                st.warning("Default API key loaded (Unverified).")
+                st.warning("Default API key loaded (Unverified).", icon="⚠️")
         else:
-            st.error("No API key loaded. Please provide one above.")
+            st.error("No API key loaded. Please provide one above.", icon="🛑")
 
     st.markdown("### Location & Time Details")
 

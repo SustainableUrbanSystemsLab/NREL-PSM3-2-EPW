@@ -34,3 +34,7 @@
 ## 2024-05-18 - Inline Validation for Forms
 **Learning:** Depending entirely on button disabled states or tooltip hints for form validation can leave users confused when fields are cleared, especially since tooltips are inaccessible on mobile devices.
 **Action:** Always provide explicit, inline feedback right next to the corresponding input fields using tools like `st.error` before disabling form submission buttons.
+
+## 2026-03-22 - Proactive Inline Validation for External Tokens
+**Learning:** In Streamlit apps that connect to external APIs, only verifying inputs on submission (or worse, letting the backend handle invalid inputs and fail) leads to unnecessary network requests, delayed failure messages, and user frustration.
+**Action:** When capturing well-structured credentials (like API keys) or strictly formatted strings, always implement proactive, inline validation based on expected attributes (e.g., string length or regex) *before* submission, providing immediate visual feedback right next to the relevant input field.
