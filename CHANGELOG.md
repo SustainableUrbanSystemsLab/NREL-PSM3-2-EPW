@@ -1,6 +1,23 @@
 # CHANGELOG
 
 
+## v0.4.0 (2026-03-19)
+
+### Features
+
+- **ux**: Add max_chars constraint to API key input
+  ([`b1f33d9`](https://github.com/SustainableUrbanSystemsLab/NREL-PSM3-2-EPW/commit/b1f33d9203a8e661d46a8120c2b7282c67506743))
+
+Add `max_chars=40` parameter to the API key `st.text_input` in the Streamlit application. This
+  provides a helpful visual character counter (0/40) for users and proactively prevents them from
+  pasting mistakenly large strings or hidden trailing spaces into the 40-character NREL API key
+  field.
+
+Also updated `.Jules/palette.md` with UX learnings regarding this change.
+
+Co-authored-by: kastnerp <1919773+kastnerp@users.noreply.github.com>
+
+
 ## v0.3.0 (2026-03-18)
 
 ### Features
