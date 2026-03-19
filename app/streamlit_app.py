@@ -149,6 +149,7 @@ def main():
             value="",
             type="password",
             help="Overrides the default API key if provided.",
+            max_chars=40,
         )
 
         if api_key_override:

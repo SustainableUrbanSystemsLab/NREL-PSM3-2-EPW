@@ -38,3 +38,7 @@
 ## 2026-03-22 - Proactive Inline Validation for External Tokens
 **Learning:** In Streamlit apps that connect to external APIs, only verifying inputs on submission (or worse, letting the backend handle invalid inputs and fail) leads to unnecessary network requests, delayed failure messages, and user frustration.
 **Action:** When capturing well-structured credentials (like API keys) or strictly formatted strings, always implement proactive, inline validation based on expected attributes (e.g., string length or regex) *before* submission, providing immediate visual feedback right next to the relevant input field.
+
+## 2024-05-22 - Visual Constraint Cues via Native Input Attributes
+**Learning:** In Streamlit applications, requiring specific lengths for inputs like API keys without providing explicit UI constraints causes user frustration when copying/pasting malformed strings, relying on form validation that only triggers later.
+**Action:** Always provide immediate visual constraints for required lengths. Utilizing `max_chars` on Streamlit `st.text_input` components implicitly restricts invalid inputs, and provides a clear character counter (e.g. `0/40`), acting as proactive inline validation without extra code.
