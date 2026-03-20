@@ -140,7 +140,7 @@ def test_download_epw_non_ok_json(monkeypatch):
         json_data={"errors": ["bad request"]},
     )
 
-    monkeypatch.setattr(assets.requests, "request", lambda *args, **kwargs: response)
+    monkeypatch.setattr(assets._session, "request", lambda *args, **kwargs: response)
 
     with pytest.raises(RuntimeError) as exc:
         assets.download_epw(
@@ -159,7 +159,7 @@ def test_download_epw_non_ok_non_json(monkeypatch):
         text="Not Found",
     )
 
-    monkeypatch.setattr(assets.requests, "request", lambda *args, **kwargs: response)
+    monkeypatch.setattr(assets._session, "request", lambda *args, **kwargs: response)
 
     with pytest.raises(RuntimeError) as exc:
         assets.download_epw(
@@ -173,7 +173,7 @@ def test_download_epw_request_connection_error(monkeypatch):
     def _raise(*_args, **_kwargs):
         raise requests.exceptions.ConnectionError("fail")
 
-    monkeypatch.setattr(assets.requests, "request", _raise)
+    monkeypatch.setattr(assets._session, "request", _raise)
 
     with pytest.raises(requests.exceptions.ConnectionError):
         assets.download_epw(
@@ -185,7 +185,7 @@ def test_download_epw_request_timeout_error(monkeypatch):
     def _raise(*_args, **_kwargs):
         raise requests.exceptions.Timeout("fail")
 
-    monkeypatch.setattr(assets.requests, "request", _raise)
+    monkeypatch.setattr(assets._session, "request", _raise)
 
     with pytest.raises(requests.exceptions.Timeout):
         assets.download_epw(
@@ -197,7 +197,7 @@ def test_download_epw_request_other_error(monkeypatch):
     def _raise(*_args, **_kwargs):
         raise requests.exceptions.RequestException("fail")
 
-    monkeypatch.setattr(assets.requests, "request", _raise)
+    monkeypatch.setattr(assets._session, "request", _raise)
 
     with pytest.raises(requests.exceptions.RequestException):
         assets.download_epw(
@@ -209,7 +209,7 @@ def test_download_epw_no_data_rows(monkeypatch):
     all_data = _build_all_data(0)
 
     response = DummyResponse(ok=True, url="https://example.com/data")
-    monkeypatch.setattr(assets.requests, "request", lambda *args, **kwargs: response)
+    monkeypatch.setattr(assets._session, "request", lambda *args, **kwargs: response)
     monkeypatch.setattr(assets.pd, "read_csv", _mock_read_csv(all_data))
 
     with pytest.raises(RuntimeError, match="No data rows"):
@@ -220,7 +220,7 @@ def test_download_epw_no_data_rows(monkeypatch):
 
 def test_download_epw_read_csv_none(monkeypatch):
     response = DummyResponse(ok=True, url="https://example.com/data")
-    monkeypatch.setattr(assets.requests, "request", lambda *args, **kwargs: response)
+    monkeypatch.setattr(assets._session, "request", lambda *args, **kwargs: response)
     monkeypatch.setattr(assets.pd, "read_csv", lambda *_args, **_kwargs: None)
 
     with pytest.raises(RuntimeError, match="Could not retrieve any data"):
@@ -233,7 +233,7 @@ def test_download_epw_tmy_missing_time_columns(monkeypatch):
     all_data = _build_all_data(2, include_time_columns=False)
 
     response = DummyResponse(ok=True, url="https://example.com/data")
-    monkeypatch.setattr(assets.requests, "request", lambda *args, **kwargs: response)
+    monkeypatch.setattr(assets._session, "request", lambda *args, **kwargs: response)
     monkeypatch.setattr(assets.pd, "read_csv", _mock_read_csv(all_data))
 
     with pytest.raises(RuntimeError, match="missing expected timestamp columns"):
@@ -246,7 +246,7 @@ def test_download_epw_tmy_bad_time(monkeypatch):
     all_data = _build_all_data(2, include_time_columns=True, bad_time=True)
 
     response = DummyResponse(ok=True, url="https://example.com/data")
-    monkeypatch.setattr(assets.requests, "request", lambda *args, **kwargs: response)
+    monkeypatch.setattr(assets._session, "request", lambda *args, **kwargs: response)
     monkeypatch.setattr(assets.pd, "read_csv", _mock_read_csv(all_data))
 
     with pytest.raises(RuntimeError, match="Could not parse timestamps"):
@@ -264,7 +264,7 @@ def test_download_epw_tmy_interval_coerced(monkeypatch, tmp_path):
         captured["params"] = params
         return DummyResponse(ok=True, url="https://example.com/data")
 
-    monkeypatch.setattr(assets.requests, "request", _fake_request)
+    monkeypatch.setattr(assets._session, "request", _fake_request)
     monkeypatch.setattr(assets.pd, "read_csv", _mock_read_csv(all_data))
     monkeypatch.chdir(tmp_path)
 
@@ -287,7 +287,7 @@ def test_download_epw_numeric_year_success(monkeypatch, tmp_path):
         captured["params"] = params
         return DummyResponse(ok=True, url="https://example.com/data")
 
-    monkeypatch.setattr(assets.requests, "request", _fake_request)
+    monkeypatch.setattr(assets._session, "request", _fake_request)
     monkeypatch.setattr(assets.pd, "read_csv", _mock_read_csv(all_data))
     monkeypatch.chdir(tmp_path)
 
@@ -310,7 +310,7 @@ def test_download_epw_sanitizes_bad_lat_lon(monkeypatch, tmp_path):
         captured["params"] = params
         return DummyResponse(ok=True, url="https://example.com/data")
 
-    monkeypatch.setattr(assets.requests, "request", _fake_request)
+    monkeypatch.setattr(assets._session, "request", _fake_request)
     monkeypatch.setattr(assets.pd, "read_csv", _mock_read_csv(all_data))
     monkeypatch.chdir(tmp_path)
 
