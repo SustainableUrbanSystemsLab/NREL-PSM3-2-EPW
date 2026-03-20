@@ -6,9 +6,11 @@ from typing import Union, Any
 
 import pandas as pd
 import requests
-
 from . import epw
 from .constants import GOES_AGGREGATED_URL, GOES_TMY_URL, DEFAULT_HEADERS
+
+# Bolt Optimization: Maintain a global session to reuse TCP connections
+_session = requests.Session()
 
 
 def _sanitize_url(raw_url: str) -> str:
@@ -83,7 +85,9 @@ def download_epw(
     headers = {"content-type": "application/x-www-form-urlencoded", "cache-control": "no-cache"}
 
     try:
-        r = requests.request("GET", url, params=payload, headers=headers, timeout=20)
+        # Bolt Optimization: Use the session object to reuse the underlying TCP/TLS connection.
+        # This speeds up repeated requests to the NREL API by avoiding repeated handshakes.
+        r = _session.request("GET", url, params=payload, headers=headers, timeout=20)
         # Redact API key for safety before potentially logging payload/url in an error
         payload["api_key"] = "REDACTED"
 
