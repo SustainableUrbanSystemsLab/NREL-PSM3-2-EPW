@@ -79,7 +79,7 @@ def _load_api_key() -> Optional[str]:
     return None
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner="📍 Reverse geocoding...")
 def get_location_name(lat: float, lon: float) -> str:
     """
     Reverse geocodes the given latitude and longitude using OpenStreetMap Nominatim API.
@@ -156,7 +156,10 @@ def main():
             api_key = api_key_override
             api_key_source = "user"
             if len(api_key.strip()) != 40:
-                st.warning("User API key loaded, but it is not 40 characters long. NREL keys are typically exactly 40 characters.", icon="⚠️")
+                st.warning(
+                    "User API key loaded, but it is not 40 characters long. NREL keys are typically exactly 40 characters.",
+                    icon="⚠️",
+                )
             else:
                 st.success("User API key loaded.", icon="✅")
         elif default_api_key:
@@ -248,6 +251,7 @@ def main():
             value="tmy",
             placeholder="e.g., 2012, tmy, tmy-2024",
             help="A specific year (>=1998) or a TMY identifier like 'tmy' or 'tmy-2024'",
+            max_chars=15,
         )
 
     current_year = datetime.now().year

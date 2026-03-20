@@ -42,3 +42,7 @@
 ## 2024-05-22 - Visual Constraint Cues via Native Input Attributes
 **Learning:** In Streamlit applications, requiring specific lengths for inputs like API keys without providing explicit UI constraints causes user frustration when copying/pasting malformed strings, relying on form validation that only triggers later.
 **Action:** Always provide immediate visual constraints for required lengths. Utilizing `max_chars` on Streamlit `st.text_input` components implicitly restricts invalid inputs, and provides a clear character counter (e.g. `0/40`), acting as proactive inline validation without extra code.
+
+## 2024-06-25 - Async Feedback for Cached API Calls Triggered by UI Interactions
+**Learning:** Synchronous external API calls (like Nominatim reverse geocoding) triggered indirectly by UI interactions (like clicking a location on a map) can cause the app to hang silently for several seconds on cache misses, confusing users about whether their interaction was registered.
+**Action:** When using `@st.cache_data` to memoize external API calls that are triggered by user interaction, explicitly opt-in to visual feedback by setting `show_spinner="Descriptive message..."`. This ensures the UI remains responsive and transparent during cache misses while preserving instant execution on cache hits.
