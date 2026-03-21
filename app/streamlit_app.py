@@ -241,6 +241,7 @@ def main():
             value=default_location,
             placeholder="e.g., Atlanta",
             help="A descriptive name for the location, used to generate the output filename",
+            max_chars=60,
         )
         location_is_valid = bool(str(location).strip())
         if not location_is_valid:

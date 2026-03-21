@@ -46,3 +46,7 @@
 ## 2024-06-25 - Async Feedback for Cached API Calls Triggered by UI Interactions
 **Learning:** Synchronous external API calls (like Nominatim reverse geocoding) triggered indirectly by UI interactions (like clicking a location on a map) can cause the app to hang silently for several seconds on cache misses, confusing users about whether their interaction was registered.
 **Action:** When using `@st.cache_data` to memoize external API calls that are triggered by user interaction, explicitly opt-in to visual feedback by setting `show_spinner="Descriptive message..."`. This ensures the UI remains responsive and transparent during cache misses while preserving instant execution on cache hits.
+
+## 2026-03-22 - Visual Constraints on Text Inputs Used for Filenames
+**Learning:** In Streamlit applications, string inputs like "Location Name" that are eventually used to generate output filenames can cause confusion or errors if users input excessively long or malformed strings. While backend validation handles empty strings, unbounded text fields do not signal the expected input format visually.
+**Action:** When capturing free-text input destined for filenames or external systems, consistently enforce sensible constraints using `max_chars` on `st.text_input()`. This immediately displays a character counter in the UI, gently guiding users and implicitly preventing egregiously long strings before submission, serving as proactive inline validation without needing extra custom code.
