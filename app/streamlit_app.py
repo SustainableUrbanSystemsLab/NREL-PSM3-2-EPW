@@ -144,11 +144,19 @@ def main():
     api_key_source = "none"
 
     with st.expander("🔑 API Key Configuration", expanded=not bool(default_api_key)):
+        label = (
+            "Provide your own NREL API key (optional):" if default_api_key else "Provide your NREL API key (required):"
+        )
+        help_text = (
+            "Overrides the default API key if provided."
+            if default_api_key
+            else "An NREL API key is strictly required to request data."
+        )
         api_key_override = st.text_input(
-            "Provide your own NREL API key (optional):",
+            label,
             value="",
             type="password",
-            help="Overrides the default API key if provided.",
+            help=help_text,
             max_chars=40,
         )
 

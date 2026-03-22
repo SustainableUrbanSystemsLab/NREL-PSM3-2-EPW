@@ -50,3 +50,7 @@
 ## 2026-03-22 - Visual Constraints on Text Inputs Used for Filenames
 **Learning:** In Streamlit applications, string inputs like "Location Name" that are eventually used to generate output filenames can cause confusion or errors if users input excessively long or malformed strings. While backend validation handles empty strings, unbounded text fields do not signal the expected input format visually.
 **Action:** When capturing free-text input destined for filenames or external systems, consistently enforce sensible constraints using `max_chars` on `st.text_input()`. This immediately displays a character counter in the UI, gently guiding users and implicitly preventing egregiously long strings before submission, serving as proactive inline validation without needing extra custom code.
+
+## 2024-06-26 - Dynamic API Key Labeling
+**Learning:** In Streamlit apps with default credentials, labelling an override input as 'optional' can be misleading if no default key is actually configured or present, confusing users as to whether input is required.
+**Action:** Dynamically update form labels and help text based on the presence of required configurations, indicating when an input is 'required' versus 'optional', providing a clearer user experience.
