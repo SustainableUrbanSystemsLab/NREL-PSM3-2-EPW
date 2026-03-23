@@ -131,6 +131,7 @@ def get_map():
 
 
 def main():
+    st.set_page_config(page_title="NREL to EPW", page_icon="☀️")
     st.markdown(f"""
     # NREL-PSM3-2-EPW  `v{__version__}`
 

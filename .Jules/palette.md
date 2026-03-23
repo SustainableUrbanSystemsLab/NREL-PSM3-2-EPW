@@ -54,3 +54,7 @@
 ## 2024-06-26 - Dynamic API Key Labeling
 **Learning:** In Streamlit apps with default credentials, labelling an override input as 'optional' can be misleading if no default key is actually configured or present, confusing users as to whether input is required.
 **Action:** Dynamically update form labels and help text based on the presence of required configurations, indicating when an input is 'required' versus 'optional', providing a clearer user experience.
+
+## 2024-07-10 - Explicit Browser Tab Titles and Icons via Page Config
+**Learning:** By default, a Streamlit application displays a generic "Streamlit" label and logo in the browser tab. For users who work with many browser tabs open, this generic presentation makes the application hard to find and feels unpolished, negatively impacting the user experience and task efficiency.
+**Action:** Always call `st.set_page_config` as the very first Streamlit command in the application's entry point to explicitly set a contextually relevant `page_title` and `page_icon`. This ensures the application is easily identifiable among other open browser tabs and presents a professional, cohesive brand experience.
