@@ -231,6 +231,7 @@ def main():
             max_value=90.0,
             value=float(default_lat),
             format="%.4f",
+            step=0.0001,
             help="Latitude of the location in decimal degrees (e.g., 33.770)",
         )
     with col2:
@@ -240,6 +241,7 @@ def main():
             max_value=180.0,
             value=float(default_lon),
             format="%.4f",
+            step=0.0001,
             help="Longitude of the location in decimal degrees (e.g., -84.3824)",
         )
 

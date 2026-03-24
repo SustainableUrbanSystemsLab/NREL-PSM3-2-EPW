@@ -58,3 +58,7 @@
 ## 2024-07-10 - Explicit Browser Tab Titles and Icons via Page Config
 **Learning:** By default, a Streamlit application displays a generic "Streamlit" label and logo in the browser tab. For users who work with many browser tabs open, this generic presentation makes the application hard to find and feels unpolished, negatively impacting the user experience and task efficiency.
 **Action:** Always call `st.set_page_config` as the very first Streamlit command in the application's entry point to explicitly set a contextually relevant `page_title` and `page_icon`. This ensures the application is easily identifiable among other open browser tabs and presents a professional, cohesive brand experience.
+
+## 2024-03-24 - Fine-Grained Stepping for Coordinate Inputs
+**Learning:** By default, Streamlit assigns a step size of 0.01 to float `number_input` components unless specified otherwise. For geographic coordinates (latitude/longitude), 0.01 degrees represents a massive physical distance (~1.1 kilometers). This renders the native up/down stepper controls (and keyboard up/down arrows) practically useless for making fine location adjustments, forcing users to manually type out decimals.
+**Action:** Always explicitly define a small, context-appropriate `step` value (e.g., `step=0.0001`, approx 11 meters) for numeric inputs representing GPS coordinates. This ensures the native UI stepper controls and keyboard arrows provide meaningful, fine-grained adjustments, improving accessibility and overall form usability.
