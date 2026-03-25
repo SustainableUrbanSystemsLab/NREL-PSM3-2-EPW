@@ -144,15 +144,19 @@ def download_epw(
 
         # We must still ensure the columns are numeric, as the API could theoretically return bad strings
         try:
-            time_df = df[time_columns].astype(int)
+            # Bolt Optimization:
+            # Creating a subset dataframe `df[time_columns]` and calling `.astype(int)` is slow
+            # because it instantiates a new DataFrame and dispatches series methods across all columns.
+            # Using `.to_numpy(dtype=int)` on individual series is safe for NumPy 2.0+ (handles string conversions natively
+            # without triggering `copy=False` constraints) and provides a significant speedup by
+            # directly extracting and casting the raw underlying array without DataFrame overhead.
+            year_vals = df["Year"].to_numpy(dtype=int)
+            month_vals = df["Month"].to_numpy(dtype=int)
+            day_vals = df["Day"].to_numpy(dtype=int)
+            hour_vals = df["Hour"].to_numpy(dtype=int)
+            minute_vals = df["Minute"].to_numpy(dtype=int)
         except ValueError:
             raise RuntimeError("Could not parse timestamps from TMY response")
-
-        year_vals = time_df["Year"].values
-        month_vals = time_df["Month"].values
-        day_vals = time_df["Day"].values
-        hour_vals = time_df["Hour"].values
-        minute_vals = time_df["Minute"].values
     else:
         datetimes = pd.date_range(f"01/01/{year_int}", periods=data_rows, freq="h")
         year_vals = datetimes.year.values
