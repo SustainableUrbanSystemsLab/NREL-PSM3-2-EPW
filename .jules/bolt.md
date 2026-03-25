@@ -45,3 +45,7 @@
 ## 2026-03-22 - HTTP Keep-Alive for API Requests
 **Learning:** Re-instantiating `requests.request()` for every API call does not take advantage of HTTP keep-alive, meaning a full TCP connection and TLS handshake are required every time. By utilizing a global `requests.Session()` within the module, we can keep the connection open, resulting in more than a 2x reduction in latency for repeated requests to the same server (from ~431ms down to ~218ms).
 **Action:** When making multiple or repeated HTTP requests to the same domain (especially when TLS is involved), always use a `requests.Session()` to pool the underlying connection.
+
+## 2026-03-22 - DataFrame Subset Slicing and Series Casting Overhead
+**Learning:** Found a major performance bottleneck where slicing a subset of columns from a DataFrame (e.g., `time_df = df[time_columns]`) and calling the `.astype(int)` pandas method on the new DataFrame forces pandas to allocate new memory and perform heavy series method dispatching. This makes the extraction process significantly slower.
+**Action:** When validating or casting specific numeric columns out of a DataFrame where high performance is critical, avoid subset slicing. Instead, extract the raw underlying numpy array natively using `.to_numpy(dtype=int)` on the individual series. This provides a significant speedup, handles string conversions correctly without triggering `copy=False` constraints in NumPy 2.0+, and safely raises a `ValueError` on invalid values.
