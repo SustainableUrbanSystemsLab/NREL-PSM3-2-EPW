@@ -62,3 +62,7 @@
 ## 2024-03-24 - Fine-Grained Stepping for Coordinate Inputs
 **Learning:** By default, Streamlit assigns a step size of 0.01 to float `number_input` components unless specified otherwise. For geographic coordinates (latitude/longitude), 0.01 degrees represents a massive physical distance (~1.1 kilometers). This renders the native up/down stepper controls (and keyboard up/down arrows) practically useless for making fine location adjustments, forcing users to manually type out decimals.
 **Action:** Always explicitly define a small, context-appropriate `step` value (e.g., `step=0.0001`, approx 11 meters) for numeric inputs representing GPS coordinates. This ensures the native UI stepper controls and keyboard arrows provide meaningful, fine-grained adjustments, improving accessibility and overall form usability.
+
+## 2026-03-25 - Avoid "Click Here" Anti-Pattern for Links
+**Learning:** Using non-descriptive link text like "here" or "click here" is an accessibility anti-pattern. Screen reader users often navigate by pulling up a list of all links on a page. In this context, "here" provides zero information about the link's destination or purpose, severely degrading the usability of the interface for visually impaired users.
+**Action:** Always ensure link text is descriptive and clearly indicates the destination or action independently of the surrounding text. For example, instead of "To get an API key, click here", use "Please [request an NREL API key]".
