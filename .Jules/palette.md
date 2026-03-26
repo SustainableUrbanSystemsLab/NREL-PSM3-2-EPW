@@ -66,3 +66,7 @@
 ## 2026-03-25 - Avoid "Click Here" Anti-Pattern for Links
 **Learning:** Using non-descriptive link text like "here" or "click here" is an accessibility anti-pattern. Screen reader users often navigate by pulling up a list of all links on a page. In this context, "here" provides zero information about the link's destination or purpose, severely degrading the usability of the interface for visually impaired users.
 **Action:** Always ensure link text is descriptive and clearly indicates the destination or action independently of the surrounding text. For example, instead of "To get an API key, click here", use "Please [request an NREL API key]".
+
+## 2026-03-26 - Full-Width Action Buttons for Better Mobile UX
+**Learning:** Default-sized primary action buttons (like "Submit" or "Download") in Streamlit applications often result in small touch targets, making them difficult to interact with on mobile devices and causing them to get visually lost underneath large form inputs on desktop views.
+**Action:** Always use `use_container_width=True` on primary action buttons (like `st.button` and `st.download_button`) that complete a section or form. This explicitly increases the touch target size across all devices, significantly improving mobile usability and providing a clearer visual hierarchy at the end of a user flow.
