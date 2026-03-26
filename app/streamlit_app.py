@@ -312,6 +312,7 @@ def main():
         help=button_help,
         disabled=not bool(api_key) or not year_is_valid or not location_is_valid,
         icon=":material/cloud_download:",
+        use_container_width=True,
     ):
         with st.spinner("Requesting data from NREL..."):
             try:
@@ -348,6 +349,7 @@ def main():
                     mime="text/plain",
                     type="primary",
                     icon=":material/download:",
+                    use_container_width=True,
                 )
 
             st.markdown("---")
