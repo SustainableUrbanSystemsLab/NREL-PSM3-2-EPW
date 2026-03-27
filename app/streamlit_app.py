@@ -183,7 +183,7 @@ def main():
             else:
                 st.warning("Default API key loaded (Unverified).", icon="⚠️")
         else:
-            st.error("No API key loaded. Please provide one above.", icon="🛑")
+            st.error("No API key loaded. Please provide one in the API Key Configuration section.", icon="🛑")
 
     st.markdown("### Location & Time Details")
 
@@ -297,8 +297,8 @@ def main():
             st.error(year_warning, icon="⚠️")
 
     if not api_key:
-        button_help = "Please provide an API key above to enable this button"
-        st.warning("Please provide an API key in the 'API Key Configuration' section above to request data.", icon="🔑")
+        button_help = "Please provide an API key in the configuration section to enable this button"
+        st.warning("Please provide an API key in the 'API Key Configuration' section to request data.", icon="🔑")
     elif not year_is_valid:
         button_help = year_warning
     elif not location_is_valid:
@@ -335,13 +335,15 @@ def main():
             except Exception as exc:
                 st.error(f"Request failed: {exc}")
                 if api_key_source == "default":
-                    st.info("If this failure is related to the default API key, enter your own key above and retry.")
+                    st.info(
+                        "If this failure is related to the default API key, enter your own key in the API Key Configuration section and retry."
+                    )
                 st.stop()
 
         if os.path.exists(file_name):
             with open(file_name, "rb") as f:
                 s = f.read()
-                st.success("Data successfully processed! Click below to download.")
+                st.success("Data successfully processed! Your EPW file is ready for download.")
                 st.download_button(
                     label="Download EPW",
                     data=s,

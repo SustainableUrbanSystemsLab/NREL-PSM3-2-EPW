@@ -70,3 +70,7 @@
 ## 2026-03-26 - Full-Width Action Buttons for Better Mobile UX
 **Learning:** Default-sized primary action buttons (like "Submit" or "Download") in Streamlit applications often result in small touch targets, making them difficult to interact with on mobile devices and causing them to get visually lost underneath large form inputs on desktop views.
 **Action:** Always use `use_container_width=True` on primary action buttons (like `st.button` and `st.download_button`) that complete a section or form. This explicitly increases the touch target size across all devices, significantly improving mobile usability and providing a clearer visual hierarchy at the end of a user flow.
+
+## 2026-03-27 - Avoid Directional Language in Error and Info Messages
+**Learning:** Using directional language like "above" or "below" in UI instructions or error messages is an accessibility anti-pattern (violating WCAG 1.3.3 Sensory Characteristics). Screen reader users navigate linearly, not spatially, and cannot perceive "above" or "below". Furthermore, visual layout changes in responsive designs can render directional instructions inaccurate.
+**Action:** Always provide explicit, context-independent instructions. Instead of saying "Please provide an API key above", use descriptive references to the specific section or component, such as "Please provide an API key in the 'API Key Configuration' section".
