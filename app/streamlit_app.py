@@ -188,7 +188,7 @@ def main():
     st.markdown("### Location & Time Details")
 
     # Show a map to pick lat/lon
-    st.write("Click on the map to select a location:")
+    st.write("Select a location on the map, or enter coordinates manually:")
     m = get_map()
 
     # Bolt Optimization:
@@ -341,9 +341,10 @@ def main():
                 st.stop()
 
         if os.path.exists(file_name):
+            file_size_mb = os.path.getsize(file_name) / (1024 * 1024)
             with open(file_name, "rb") as f:
                 s = f.read()
-                st.success("Data successfully processed! Your EPW file is ready for download.")
+                st.success(f"Data successfully processed! Your EPW file is ready for download ({file_size_mb:.2f} MB).")
                 st.download_button(
                     label="Download EPW",
                     data=s,
