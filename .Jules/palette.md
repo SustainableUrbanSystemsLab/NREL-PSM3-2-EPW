@@ -74,3 +74,7 @@
 ## 2026-03-27 - Avoid Directional Language in Error and Info Messages
 **Learning:** Using directional language like "above" or "below" in UI instructions or error messages is an accessibility anti-pattern (violating WCAG 1.3.3 Sensory Characteristics). Screen reader users navigate linearly, not spatially, and cannot perceive "above" or "below". Furthermore, visual layout changes in responsive designs can render directional instructions inaccurate.
 **Action:** Always provide explicit, context-independent instructions. Instead of saying "Please provide an API key above", use descriptive references to the specific section or component, such as "Please provide an API key in the 'API Key Configuration' section".
+
+## 2024-05-18 - Avoiding Exclusive Pointer-Driven Instructions for Interactive Widgets
+**Learning:** Using instructions like "Click on the map..." is an accessibility anti-pattern (violates WCAG 1.3.3 Sensory Characteristics) because it assumes the user is using a pointer device (mouse, touch) and can see the widget. Screen reader users or keyboard-only users may interact with the interface differently (e.g. manually entering coordinates into inputs).
+**Action:** When providing instructions for interactive graphical widgets like maps, avoid exclusive pointer-driven language. Use inclusive phrasing like "Select a location on the map, or enter coordinates manually" to accommodate all interaction modes and ensure instructions remain accurate for keyboard and assistive technology users.
