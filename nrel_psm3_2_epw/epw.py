@@ -143,7 +143,9 @@ class EPW:
             for k, v in self.headers.items():
                 csvwriter.writerow([k] + v)
 
-            # Bolt Optimization: Use csvwriter.writerows with raw numpy arrays
-            # instead of pandas.to_csv. This avoids heavy string formatting overhead
-            # in pandas and can cut the write time by more than half for the 8760x35 EPW table.
-            csvwriter.writerows(self.dataframe.values.tolist())
+            # Bolt Optimization: Use pandas .to_csv() directly for mixed-type DataFrames.
+            # While .values.tolist() is faster for purely numeric arrays, calling .values on
+            # a DataFrame containing strings (like EPW observation flags) forces NumPy to allocate
+            # a massive object-dtype array, which causes significant memory overhead and slows down
+            # extraction. .to_csv() handles mixed types efficiently in C without this copy penalty.
+            self.dataframe.to_csv(csvfile, index=False, header=False)
