@@ -78,3 +78,7 @@
 ## 2024-05-18 - Avoiding Exclusive Pointer-Driven Instructions for Interactive Widgets
 **Learning:** Using instructions like "Click on the map..." is an accessibility anti-pattern (violates WCAG 1.3.3 Sensory Characteristics) because it assumes the user is using a pointer device (mouse, touch) and can see the widget. Screen reader users or keyboard-only users may interact with the interface differently (e.g. manually entering coordinates into inputs).
 **Action:** When providing instructions for interactive graphical widgets like maps, avoid exclusive pointer-driven language. Use inclusive phrasing like "Select a location on the map, or enter coordinates manually" to accommodate all interaction modes and ensure instructions remain accurate for keyboard and assistive technology users.
+
+## 2026-03-29 - Demystifying Domain Jargon and External Links with Inline Context
+**Learning:** Users new to a specific domain (like building physics) often struggle with unexplained acronyms like "TMY" (Typical Meteorological Year). While tooltips offer hints, they are not mobile-friendly. Additionally, listing external tool links without descriptions forces users to click blindly to understand their value.
+**Action:** Always provide unobtrusive inline explanations for domain-specific jargon (e.g., using `st.caption`) near the relevant input field. When providing links to external resources or tools, always append a brief description of what the tool does to set clear expectations and improve user confidence before clicking.
