@@ -266,6 +266,7 @@ def main():
             help="A specific year (>=1998) or a TMY identifier like 'tmy' or 'tmy-2024'",
             max_chars=15,
         )
+        st.caption("💡 *TMY (Typical Meteorological Year) datasets represent long-term average climate conditions.*")
 
     current_year = datetime.now().year
     year_str = str(year).strip()
@@ -344,7 +345,9 @@ def main():
             file_size_mb = os.path.getsize(file_name) / (1024 * 1024)
             with open(file_name, "rb") as f:
                 s = f.read()
-                st.success(f"Data successfully processed! Your EPW file is ready for download ({file_size_mb:.2f} MB).")
+                st.success(
+                    f"Data successfully processed! Your EPW file (**{os.path.basename(file_name)}**) is ready for download ({file_size_mb:.2f} MB)."
+                )
                 st.download_button(
                     label="Download EPW",
                     data=s,
@@ -357,9 +360,13 @@ def main():
 
             st.markdown("---")
             st.markdown("### Visualize your EPW file")
-            st.markdown("Once downloaded, you can visualize your EPW file using these online tools:")
-            st.markdown("- [EPWvis](https://mdahlhausen.github.io/epwvis/)")
-            st.markdown("- [CBE Clima Tool](https://clima.cbe.berkeley.edu/)")
+            st.markdown("Once downloaded, you can visualize your EPW file using these free online tools:")
+            st.markdown(
+                "- **[EPWvis](https://mdahlhausen.github.io/epwvis/)**: View summary charts and graphs for temperature, radiation, and wind."
+            )
+            st.markdown(
+                "- **[CBE Clima Tool](https://clima.cbe.berkeley.edu/)**: Advanced interactive climate analysis and psychrometric charts."
+            )
         else:
             st.error("Please make sure that NREL is able to deliver data for the location and year your provided.")
         st.stop()
