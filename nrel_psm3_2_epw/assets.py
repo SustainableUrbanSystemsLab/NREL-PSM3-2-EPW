@@ -133,37 +133,23 @@ def download_epw(
     metadata = metadata_df.iloc[0, :]
 
     time_columns = ["Year", "Month", "Day", "Hour", "Minute"]
-    if is_tmy:
-        if not all(col in df.columns for col in time_columns):
-            raise RuntimeError("TMY response missing expected timestamp columns")
+    if not all(col in df.columns for col in time_columns):
+        raise RuntimeError("NREL response missing expected timestamp columns")
 
-        # Bolt Optimization:
-        # Since the DataFrame was natively loaded with correct numeric types (int64) via `skiprows=2`,
-        # we completely bypass `pd.to_datetime` and `pd.DatetimeIndex` overhead.
-        # We can extract the underlying numpy values immediately, saving ~90% of DataFrame construction time.
-
-        # We must still ensure the columns are numeric, as the API could theoretically return bad strings
-        try:
-            # Bolt Optimization:
-            # Creating a subset dataframe `df[time_columns]` and calling `.astype(int)` is slow
-            # because it instantiates a new DataFrame and dispatches series methods across all columns.
-            # Using `.to_numpy(dtype=int)` on individual series is safe for NumPy 2.0+ (handles string conversions natively
-            # without triggering `copy=False` constraints) and provides a significant speedup by
-            # directly extracting and casting the raw underlying array without DataFrame overhead.
-            year_vals = df["Year"].to_numpy(dtype=int)
-            month_vals = df["Month"].to_numpy(dtype=int)
-            day_vals = df["Day"].to_numpy(dtype=int)
-            hour_vals = df["Hour"].to_numpy(dtype=int)
-            minute_vals = df["Minute"].to_numpy(dtype=int)
-        except ValueError:
-            raise RuntimeError("Could not parse timestamps from TMY response")
-    else:
-        datetimes = pd.date_range(f"01/01/{year_int}", periods=data_rows, freq="h")
-        year_vals = datetimes.year.values
-        month_vals = datetimes.month.values
-        day_vals = datetimes.day.values
-        hour_vals = datetimes.hour.values
-        minute_vals = datetimes.minute.values
+    # Bolt Optimization:
+    # Both TMY and aggregated APIs return native time columns natively parsed as int64 via `skiprows=2`.
+    # By extracting these values directly, we completely bypass synthetic `pd.date_range` generation
+    # and expensive property extractions (`.year`, `.month`, etc.) on the pandas DatetimeIndex, saving CPU cycles.
+    try:
+        # Using `.to_numpy(dtype=int)` directly safely validates and casts the series to raw numpy arrays
+        # much faster than `df[time_columns].astype(int)`.
+        year_vals = df["Year"].to_numpy(dtype=int)
+        month_vals = df["Month"].to_numpy(dtype=int)
+        day_vals = df["Day"].to_numpy(dtype=int)
+        hour_vals = df["Hour"].to_numpy(dtype=int)
+        minute_vals = df["Minute"].to_numpy(dtype=int)
+    except ValueError:
+        raise RuntimeError("Could not parse timestamps from NREL response")
 
     # Bolt Optimization: Avoid setting the DatetimeIndex on the pandas DataFrame
     # since we immediately extract raw `.values` below. This saves a full copy
