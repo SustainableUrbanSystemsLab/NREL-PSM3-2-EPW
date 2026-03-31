@@ -359,13 +359,12 @@ def main():
                 )
 
             st.markdown("---")
-            st.markdown("### Visualize your EPW file")
-            st.markdown("Once downloaded, you can visualize your EPW file using these free online tools:")
-            st.markdown(
-                "- **[EPWvis](https://mdahlhausen.github.io/epwvis/)**: View summary charts and graphs for temperature, radiation, and wind."
-            )
-            st.markdown(
-                "- **[CBE Clima Tool](https://clima.cbe.berkeley.edu/)**: Advanced interactive climate analysis and psychrometric charts."
+            st.info(
+                "**Visualize your EPW file**\n\n"
+                "Once downloaded, you can visualize your EPW file using these free online tools:\n\n"
+                "- **[EPWvis](https://mdahlhausen.github.io/epwvis/)**: View summary charts and graphs for temperature, radiation, and wind.\n"
+                "- **[CBE Clima Tool](https://clima.cbe.berkeley.edu/)**: Advanced interactive climate analysis and psychrometric charts.",
+                icon="📊",
             )
         else:
             st.error("Please make sure that NREL is able to deliver data for the location and year your provided.")
