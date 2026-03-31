@@ -182,6 +182,7 @@ def download_epw(
     # Using underlying numpy `.values` directly, computing operations on the numpy arrays,
     # and preventing implicit dataframe copying via `copy=False` further halves construction time.
     # Furthermore, using `.values` on `pd.DatetimeIndex` properties avoids expensive pandas dispatch and cast overhead.
+    # Bolt Optimization: The "Pressure" array is natively inferred as int64. We remove .astype(int) to avoid redundant array duplication.
     epw_df = pd.DataFrame(
         {
             "Year": year_vals,
@@ -193,7 +194,7 @@ def download_epw(
             "Dry Bulb Temperature": df["Temperature"].values,
             "Dew Point Temperature": df["Dew Point"].values,
             "Relative Humidity": df["Relative Humidity"].values,
-            "Atmospheric Station Pressure": (df["Pressure"].values.astype(int) * 100),
+            "Atmospheric Station Pressure": (df["Pressure"].values * 100),
             "Extraterrestrial Horizontal Radiation": 9999,
             "Extraterrestrial Direct Normal Radiation": 9999,
             "Horizontal Infrared Radiation Intensity": 9999,
