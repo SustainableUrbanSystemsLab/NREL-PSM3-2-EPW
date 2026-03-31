@@ -57,3 +57,7 @@
 ## 2026-03-30 - Leverage native dataset time columns instead of synthetic pd.date_range
 **Learning:** For aggregated datasets, a synthetic `pd.date_range()` generator was used to create index properties (`year`, `month`, etc.), even though the upstream NREL API already returns native `Year`, `Month`, `Day`, `Hour`, and `Minute` columns. The generation and property extraction overhead from a pandas DatetimeIndex incurs significant CPU cycles.
 **Action:** When the upstream dataset natively provides time columns (which pandas efficiently parses as raw `int64` arrays), use those arrays directly via `.to_numpy(dtype=int)` instead of redundantly generating and decomposing timestamps synthetically.
+
+## 2024-05-24 - Redundant Array Type Casting Overhead
+**Learning:** Calling `.astype(int)` on a pandas Series or numpy array that is already correctly inferred as an integer type (e.g., from `read_csv`) triggers an unnecessary full array copy in memory.
+**Action:** Verify the native dtype of pandas columns before applying casts. If the data is already the correct numeric type, perform mathematical operations directly on the `.values` array without casting to avoid memory allocation overhead.
