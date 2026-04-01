@@ -348,6 +348,11 @@ def main():
                 st.success(
                     f"Data successfully processed! Your EPW file (**{os.path.basename(file_name)}**) is ready for download ({file_size_mb:.2f} MB)."
                 )
+
+                with st.expander("👀 Preview File Contents (First 10 Lines)"):
+                    preview_lines = s.decode("utf-8", errors="replace").split("\n")[:10]
+                    st.code("\n".join(preview_lines), language="csv")
+
                 st.download_button(
                     label="Download EPW",
                     data=s,
