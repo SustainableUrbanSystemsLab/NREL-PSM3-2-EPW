@@ -136,7 +136,7 @@ def main():
     # NREL-PSM3-2-EPW  `v{__version__}`
 
     This script converts climate data from NREL to the EnergyPlus EPW format.
-    If you do not have an API key, please [request an NREL API key](https://developer.nrel.gov/signup).
+    If you do not have an API key, please [request an NREL API key](https://developer.nlr.gov/signup).
     """)
 
     # API Key Handling
