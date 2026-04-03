@@ -61,3 +61,7 @@
 ## 2024-05-24 - Redundant Array Type Casting Overhead
 **Learning:** Calling `.astype(int)` on a pandas Series or numpy array that is already correctly inferred as an integer type (e.g., from `read_csv`) triggers an unnecessary full array copy in memory.
 **Action:** Verify the native dtype of pandas columns before applying casts. If the data is already the correct numeric type, perform mathematical operations directly on the `.values` array without casting to avoid memory allocation overhead.
+
+## 2025-02-20 - Massive overhead when decoding strings before splitting
+**Learning:** Calling `.decode("utf-8").split("\n")` on large byte strings in memory (like a 2.5MB file) allocates an enormous temporary string and array, just to slice the first 10 lines. This creates huge CPU overhead and memory spikes.
+**Action:** When extracting a subset of lines from raw bytes, always perform a bounded split (`maxsplit`) on the raw bytes *before* decoding, e.g., `b"\n".join(s.split(b"\n", N)[:N]).decode()`. This dramatically reduces memory allocation overhead and speeds up string parsing operations.
