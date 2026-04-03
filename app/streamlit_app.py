@@ -210,6 +210,8 @@ def main():
         loc_name = get_location_name(default_lat, default_lon)
         if loc_name != "Unknown Location":
             default_location = loc_name
+        else:
+            default_location = ""
 
         # UX Improvement: Provide subtle toast feedback when a new location is clicked on the map
         click_id = f"{default_lat}-{default_lon}"
@@ -252,9 +254,9 @@ def main():
             "Location Name",
             value=default_location,
             placeholder="e.g., Atlanta",
-            help="A descriptive name for the location, used to generate the output filename",
             max_chars=60,
         )
+        st.caption("📝 *Used to generate the output filename.*")
         location_is_valid = bool(str(location).strip())
         if not location_is_valid:
             st.error("Please provide a location name.", icon="⚠️")
