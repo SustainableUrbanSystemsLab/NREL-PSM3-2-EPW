@@ -1,6 +1,31 @@
 # CHANGELOG
 
 
+## v0.5.0 (2026-04-03)
+
+### Features
+
+- Improve location input UX and accessibility
+  ([`6574345`](https://github.com/SustainableUrbanSystemsLab/NREL-PSM3-2-EPW/commit/6574345468446d78b100bc75f0f88e7c277277eb))
+
+- Clears the location name input instead of silently falling back to 'Atlanta' when reverse
+  geocoding fails. - Moves the location instructions from an inaccessible mobile tooltip (`help`) to
+  an explicit inline `st.caption` to ensure accessibility on all devices.
+
+Co-authored-by: kastnerp <1919773+kastnerp@users.noreply.github.com>
+
+### Performance Improvements
+
+- Optimize epw file preview decoding logic
+  ([`69479da`](https://github.com/SustainableUrbanSystemsLab/NREL-PSM3-2-EPW/commit/69479da52cf94cd6f5aafac77562aadbf98aa67c))
+
+Changed the file preview logic to split the raw byte string with a maxsplit before decoding, rather
+  than decoding the entire 2.5MB+ file and splitting it into thousands of list items just to show 10
+  lines. This dramatically reduces memory overhead and CPU time during file processing.
+
+Co-authored-by: kastnerp <1919773+kastnerp@users.noreply.github.com>
+
+
 ## v0.4.0 (2026-03-19)
 
 ### Features
