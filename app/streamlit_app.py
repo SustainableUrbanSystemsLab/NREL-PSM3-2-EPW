@@ -352,8 +352,12 @@ def main():
                 )
 
                 with st.expander("👀 Preview File Contents (First 10 Lines)"):
-                    preview_lines = s.decode("utf-8", errors="replace").split("\n")[:10]
-                    st.code("\n".join(preview_lines), language="csv")
+                    # Bolt Optimization:
+                    # By splitting on the raw byte string `s` with maxsplit=10 *before* decoding,
+                    # we avoid completely decoding the entire 2.5MB+ file into memory and allocating
+                    # an 8760+ element list just to extract the first 10 lines.
+                    preview_lines = b"\n".join(s.split(b"\n", 10)[:10]).decode("utf-8", errors="replace")
+                    st.code(preview_lines, language="csv")
 
                 st.download_button(
                     label="Download EPW",
