@@ -157,10 +157,10 @@ def main():
             label,
             value="",
             type="password",
-            help=help_text,
             max_chars=40,
             placeholder="Enter your 40-character API key",
         )
+        st.caption(help_text)
 
         if api_key_override:
             api_key = api_key_override
@@ -235,8 +235,8 @@ def main():
             value=float(default_lat),
             format="%.4f",
             step=0.0001,
-            help="Latitude of the location in decimal degrees (e.g., 33.770)",
         )
+        st.caption("Latitude of the location in decimal degrees (e.g., 33.770)")
     with col2:
         lon = st.number_input(
             "Longitude",
@@ -245,8 +245,8 @@ def main():
             value=float(default_lon),
             format="%.4f",
             step=0.0001,
-            help="Longitude of the location in decimal degrees (e.g., -84.3824)",
         )
+        st.caption("Longitude of the location in decimal degrees (e.g., -84.3824)")
 
     col3, col4 = st.columns(2)
     with col3:
@@ -265,9 +265,9 @@ def main():
             "Year",
             value="tmy",
             placeholder="e.g., 2012, tmy, tmy-2024",
-            help="A specific year (>=1998) or a TMY identifier like 'tmy' or 'tmy-2024'",
             max_chars=15,
         )
+        st.caption("A specific year (>=1998) or a TMY identifier like 'tmy' or 'tmy-2024'")
         st.caption("💡 *TMY (Typical Meteorological Year) datasets represent long-term average climate conditions.*")
 
     current_year = datetime.now().year
