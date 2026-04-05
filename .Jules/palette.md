@@ -98,3 +98,7 @@
 ## 2026-04-04 - Avoiding Inaccessible Tooltips
 **Learning:** In Streamlit, instructions passed via the `help` parameter of input components are rendered as hover-only tooltips. These are completely inaccessible to users on mobile and touch devices, meaning critical context or formatting rules are hidden.
 **Action:** Remove the `help` parameters and move critical instructions into explicit `st.caption` elements placed immediately below the inputs.
+
+## 2024-05-24 - Conditional Onboarding Callouts
+**Learning:** Returning users experience visual fatigue and "banner blindness" when presented with static onboarding instructions (like API key signup links) on every visit.
+**Action:** Extract static onboarding links from general descriptions into visually distinct callouts (e.g., `st.info` with an icon) and conditionally display them *only* when the required configuration (e.g., a default API key) is missing. This reduces clutter for returning users while providing clear guidance for new users.
