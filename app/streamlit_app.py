@@ -136,11 +136,14 @@ def main():
     # NREL-PSM3-2-EPW  `v{__version__}`
 
     This script converts climate data from NREL to the EnergyPlus EPW format.
-    If you do not have an API key, please [request an NREL API key](https://developer.nlr.gov/signup).
     """)
 
     # API Key Handling
     default_api_key = _load_api_key()
+
+    if not default_api_key:
+        st.info("👋 **First time here?** You'll need an API key to download data. [Request an NREL API key](https://developer.nlr.gov/signup) for free.", icon="💡")
+
     api_key = ""
     api_key_source = "none"
 
@@ -259,7 +262,7 @@ def main():
         st.caption("📝 *Used to generate the output filename.*")
         location_is_valid = bool(str(location).strip())
         if not location_is_valid:
-            st.error("Please provide a location name.", icon="⚠️")
+            st.warning("A location name is required to generate the file.", icon="⚠️")
     with col4:
         year = st.text_input(
             "Year",
@@ -378,7 +381,7 @@ def main():
                 icon="📊",
             )
         else:
-            st.error("Please make sure that NREL is able to deliver data for the location and year your provided.")
+            st.error("Please make sure that NREL is able to deliver data for the location and year you provided.")
         st.stop()
 
 
