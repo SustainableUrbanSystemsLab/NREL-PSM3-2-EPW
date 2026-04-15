@@ -1,6 +1,6 @@
 import pandas as pd
 
-from nrel_psm3_2_epw import epw
+from nlr_psm3_2_epw import epw
 
 
 def test_epw_read_write_roundtrip(tmp_path):

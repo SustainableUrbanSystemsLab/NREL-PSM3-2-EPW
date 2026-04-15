@@ -9,10 +9,10 @@ import streamlit as st
 import folium
 from streamlit_folium import st_folium
 
-__version__ = version("nrel-psm3-2-epw")
+__version__ = version("nlr-psm3-2-epw")
 
-from nrel_psm3_2_epw.assets import download_epw
-from nrel_psm3_2_epw.constants import DEVELOPER_DOCS_URL, DEVELOPER_SIGNUP_URL
+from nlr_psm3_2_epw.assets import download_epw
+from nlr_psm3_2_epw.constants import DEVELOPER_DOCS_URL, DEVELOPER_SIGNUP_URL
 
 # --- CONSTANTS ---
 ATTRIBUTES = (
@@ -87,7 +87,7 @@ def get_location_name(lat: float, lon: float) -> str:
     Returns a meaningful location name or 'Unknown Location' if it fails.
     """
     url = f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}"
-    headers = {"User-Agent": f"NREL-PSM3-2-EPW-App/{__version__}"}
+    headers = {"User-Agent": f"NLR-PSM3-2-EPW-App/{__version__}"}
     try:
         response = requests.get(url, headers=headers, timeout=5)
         response.raise_for_status()
@@ -132,11 +132,11 @@ def get_map():
 
 
 def main():
-    st.set_page_config(page_title="NREL to EPW", page_icon="☀️")
+    st.set_page_config(page_title="NLR to EPW", page_icon="☀️")
     st.markdown(f"""
-    # NREL-PSM3-2-EPW  `v{__version__}`
+    # NLR-PSM3-2-EPW  `v{__version__}`
 
-    This script converts climate data from NREL to the EnergyPlus EPW format.
+    This script converts climate data from NLR to the EnergyPlus EPW format.
     """)
 
     # API Key Handling
@@ -145,7 +145,7 @@ def main():
     if not default_api_key:
         st.info(
             "👋 **First time here?** You'll need an API key to download data. "
-            f"[Request an NREL API key]({DEVELOPER_SIGNUP_URL}) for free. "
+            f"[Request an NLR API key]({DEVELOPER_SIGNUP_URL}) for free. "
             f"[API docs]({DEVELOPER_DOCS_URL}) are also available.",
             icon="💡",
         )
@@ -155,12 +155,12 @@ def main():
 
     with st.expander("🔑 API Key Configuration", expanded=not bool(default_api_key)):
         label = (
-            "Provide your own NREL API key (optional):" if default_api_key else "Provide your NREL API key (required):"
+            "Provide your own NLR API key (optional):" if default_api_key else "Provide your NLR API key (required):"
         )
         help_text = (
             "Overrides the default API key if provided."
             if default_api_key
-            else "An NREL API key is strictly required to request data."
+            else "An NLR API key is strictly required to request data."
         )
         api_key_override = st.text_input(
             label,
@@ -176,7 +176,7 @@ def main():
             api_key_source = "user"
             if len(api_key.strip()) != 40:
                 st.warning(
-                    "User API key loaded, but it is not 40 characters long. NREL keys are typically exactly 40 characters.",
+                    "User API key loaded, but it is not 40 characters long. NLR keys are typically exactly 40 characters.",
                     icon="⚠️",
                 )
             else:
@@ -290,13 +290,13 @@ def main():
         if year_int in (current_year, current_year - 1):
             year_is_valid = False
             year_warning = (
-                f"NREL does not provide data for the current year {year}. "
+                f"NLR does not provide data for the current year {year}. "
                 f"It is also unlikely that there is data availability for {year_int - 1}."
             )
         elif year_int < MIN_YEAR:
             year_is_valid = False
             year_warning = (
-                f"NREL does not provide data for the year {year}. "
+                f"NLR does not provide data for the year {year}. "
                 f"The earliest year data is available for is {MIN_YEAR}."
             )
     else:
@@ -316,17 +316,17 @@ def main():
     elif not location_is_valid:
         button_help = "Please provide a valid location name."
     else:
-        button_help = "Initiates request to NREL API to download EPW file"
+        button_help = "Initiates request to NLR API to download EPW file"
 
     if st.button(
-        "Request from NREL",
+        "Request from NLR",
         type="primary",
         help=button_help,
         disabled=not bool(api_key) or not year_is_valid or not location_is_valid,
         icon=":material/cloud_download:",
         use_container_width=True,
     ):
-        with st.spinner("Requesting data from NREL..."):
+        with st.spinner("Requesting data from NLR..."):
             try:
                 file_name = download_epw(
                     lon,
@@ -387,7 +387,7 @@ def main():
                 icon="📊",
             )
         else:
-            st.error("Please make sure that NREL is able to deliver data for the location and year you provided.")
+            st.error("Please make sure that NLR is able to deliver data for the location and year you provided.")
         st.stop()
 
 

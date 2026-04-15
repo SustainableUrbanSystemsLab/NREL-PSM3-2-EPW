@@ -621,7 +621,7 @@ wheels = [
 ]
 
 [[package]]
-name = "nrel-psm3-2-epw"
+name = "nlr-psm3-2-epw"
 version = "0.5.0"
 source = { editable = "." }
 dependencies = [

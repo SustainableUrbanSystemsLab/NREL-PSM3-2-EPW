@@ -43,7 +43,7 @@ def download_epw(
     leap_year: str,
 ) -> str:
     """
-    Downloads climate data from NREL and converts it to an EPW file.
+    Downloads climate data from NLR and converts it to an EPW file.
 
     Returns:
         str: The filename of the created EPW file.
@@ -58,7 +58,7 @@ def download_epw(
         current_year = datetime.now().year
         if year_int in (current_year, current_year - 1):
             raise Exception(
-                f"NREL does not provide data for the current year {year}. "
+                f"NLR does not provide data for the current year {year}. "
                 f"It is also unlikely that there is data availability for {year_int - 1}."
             )
 
@@ -86,7 +86,7 @@ def download_epw(
 
     try:
         # Bolt Optimization: Use the session object to reuse the underlying TCP/TLS connection.
-        # This speeds up repeated requests to the NREL API by avoiding repeated handshakes.
+        # This speeds up repeated requests to the NLR API by avoiding repeated handshakes.
         r = _session.request("GET", url, params=payload, headers=headers, timeout=20)
         # Redact API key for safety before potentially logging payload/url in an error
         payload["api_key"] = "REDACTED"
@@ -97,7 +97,7 @@ def download_epw(
                 error_payload = r.json()
             except ValueError:
                 error_payload = {"message": r.text.strip()}
-            raise RuntimeError(f"NREL request failed ({r.status_code}) for {safe_url}: {error_payload}")
+            raise RuntimeError(f"NLR request failed ({r.status_code}) for {safe_url}: {error_payload}")
 
         # Parse the downloaded content instead of requesting the URL again
         # This prevents pandas from making a second HTTP request for the same data
@@ -127,14 +127,14 @@ def download_epw(
 
     data_rows = df.shape[0]
     if data_rows <= 0:
-        raise RuntimeError("No data rows returned from NREL")
+        raise RuntimeError("No data rows returned from NLR")
 
     # Take first row for metadata
     metadata = metadata_df.iloc[0, :]
 
     time_columns = ["Year", "Month", "Day", "Hour", "Minute"]
     if not all(col in df.columns for col in time_columns):
-        raise RuntimeError("NREL response missing expected timestamp columns")
+        raise RuntimeError("NLR response missing expected timestamp columns")
 
     # Bolt Optimization:
     # Both TMY and aggregated APIs return native time columns natively parsed as int64 via `skiprows=2`.
@@ -149,7 +149,7 @@ def download_epw(
         hour_vals = df["Hour"].to_numpy(dtype=int)
         minute_vals = df["Minute"].to_numpy(dtype=int)
     except ValueError:
-        raise RuntimeError("Could not parse timestamps from NREL response")
+        raise RuntimeError("Could not parse timestamps from NLR response")
 
     # Bolt Optimization: Avoid setting the DatetimeIndex on the pandas DataFrame
     # since we immediately extract raw `.values` below. This saves a full copy
@@ -169,7 +169,7 @@ def download_epw(
         location,
         "STATE",
         "COUNTRY",
-        "NREL PSM v4 SOURCE",
+        "NLR PSM v4 SOURCE",
         "XXX",
         str(lat),
         str(lon),
@@ -190,7 +190,7 @@ def download_epw(
             "Day": day_vals,
             "Hour": hour_vals + 1,
             "Minute": minute_vals,
-            "Data Source and Uncertainty Flags": "'Created with NREL PSM v4 input data'",
+            "Data Source and Uncertainty Flags": "'Created with NLR PSM v4 input data'",
             "Dry Bulb Temperature": df["Temperature"].values,
             "Dew Point Temperature": df["Dew Point"].values,
             "Relative Humidity": df["Relative Humidity"].values,

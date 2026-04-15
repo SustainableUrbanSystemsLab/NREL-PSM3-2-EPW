@@ -12,7 +12,7 @@ DEFAULT_HEADERS = {
         "PlaceHolder",  # Was location
         "STATE",
         "COUNTRY",
-        "NREL PSM v4 SOURCE",
+        "NLR PSM v4 SOURCE",
         "XXX",
         "0",  # Was lat
         "0",  # Was lon
@@ -169,7 +169,7 @@ DEFAULT_HEADERS = {
         "13.60",
     ],
     "HOLIDAYS/DAYLIGHT SAVINGS": ["No", "0", "0", "0"],
-    "COMMENTS 1": ["NREL PSM3 DATA"],
-    "COMMENTS 2": ["https://bit.ly/NREL--PSM3-2-EPW"],
+    "COMMENTS 1": ["NLR PSM3 DATA"],
+    "COMMENTS 2": ["https://github.com/SustainableUrbanSystemsLab/NLR-PSM3-2-EPW"],
     "DATA PERIODS": ["1", "1", "Data", "Sunday", " 1/ 1", "12/31"],
 }

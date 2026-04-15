@@ -2,8 +2,8 @@ import pandas as pd
 import pytest
 import requests
 
-from nrel_psm3_2_epw import assets
-from nrel_psm3_2_epw import constants
+from nlr_psm3_2_epw import assets
+from nlr_psm3_2_epw import constants
 
 
 class DummyResponse:

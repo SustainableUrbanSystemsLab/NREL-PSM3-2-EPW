@@ -1,7 +1,7 @@
 [project]
-name = "nrel-psm3-2-epw"
+name = "nlr-psm3-2-epw"
 version = "0.5.0"
-description = "A script that writes out epw files from NREL Physical Solar Model (PSM) v3.2.2"
+description = "A script that writes out epw files from NLR Physical Solar Model (PSM) v3.2.2"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -22,10 +22,10 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "--cov=nrel_psm3_2_epw --cov-report=term-missing --cov-fail-under=100"
+addopts = "--cov=nlr_psm3_2_epw --cov-report=term-missing --cov-fail-under=100"
 
 [tool.coverage.run]
-source = ["nrel_psm3_2_epw"]
+source = ["nlr_psm3_2_epw"]
 
 [tool.ruff]
 exclude = [".venv", "venv", "env"]
@@ -36,7 +36,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["nrel_psm3_2_epw*"]
+include = ["nlr_psm3_2_epw*"]
 exclude = ["app*", "tests*"]
 
 [dependency-groups]
