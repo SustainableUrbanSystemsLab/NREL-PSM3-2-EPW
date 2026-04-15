@@ -12,6 +12,7 @@ from streamlit_folium import st_folium
 __version__ = version("nrel-psm3-2-epw")
 
 from nrel_psm3_2_epw.assets import download_epw
+from nrel_psm3_2_epw.constants import DEVELOPER_DOCS_URL, DEVELOPER_SIGNUP_URL
 
 # --- CONSTANTS ---
 ATTRIBUTES = (
@@ -142,7 +143,12 @@ def main():
     default_api_key = _load_api_key()
 
     if not default_api_key:
-        st.info("👋 **First time here?** You'll need an API key to download data. [Request an NREL API key](https://developer.nlr.gov/signup) for free.", icon="💡")
+        st.info(
+            "👋 **First time here?** You'll need an API key to download data. "
+            f"[Request an NREL API key]({DEVELOPER_SIGNUP_URL}) for free. "
+            f"[API docs]({DEVELOPER_DOCS_URL}) are also available.",
+            icon="💡",
+        )
 
     api_key = ""
     api_key_source = "none"

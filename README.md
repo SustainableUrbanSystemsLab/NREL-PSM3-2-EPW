@@ -34,6 +34,8 @@ A script and Streamlit app that writes out EPW files from NREL Physical Solar Mo
         ```toml
         APIKEY = "YOUR_NREL_API_KEY"
         ```
+    -   Request or manage your API key at `https://developer.nlr.gov/signup`
+    -   API documentation is available at `https://developer.nlr.gov`
     -   *Note: The app verifies the default API key integrity.*
 
 3.  **Run the App**:

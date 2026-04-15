@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
-GOES_AGGREGATED_URL = "https://developer.nlr.gov/api/nsrdb/v2/solar/nsrdb-GOES-aggregated-v4-0-0-download.csv"
-GOES_TMY_URL = "https://developer.nlr.gov/api/nsrdb/v2/solar/nsrdb-GOES-tmy-v4-0-0-download.csv"
+DEVELOPER_BASE_URL = "https://developer.nlr.gov"
+DEVELOPER_DOCS_URL = DEVELOPER_BASE_URL
+DEVELOPER_SIGNUP_URL = f"{DEVELOPER_BASE_URL}/signup"
+
+GOES_AGGREGATED_URL = f"{DEVELOPER_BASE_URL}/api/nsrdb/v2/solar/nsrdb-GOES-aggregated-v4-0-0-download.csv"
+GOES_TMY_URL = f"{DEVELOPER_BASE_URL}/api/nsrdb/v2/solar/nsrdb-GOES-tmy-v4-0-0-download.csv"
 
 DEFAULT_HEADERS = {
     "LOCATION": [

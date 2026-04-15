@@ -3,6 +3,7 @@ import pytest
 import requests
 
 from nrel_psm3_2_epw import assets
+from nrel_psm3_2_epw import constants
 
 
 class DummyResponse:
@@ -101,6 +102,16 @@ def test_sanitize_url_removes_api_key():
     sanitized = assets._sanitize_url(url)
     assert "api_key" not in sanitized
     assert "names=2012" in sanitized
+
+
+def test_nsrdb_urls_use_new_developer_host():
+    assert constants.DEVELOPER_BASE_URL == "https://developer.nlr.gov"
+    assert constants.DEVELOPER_DOCS_URL == "https://developer.nlr.gov"
+    assert constants.DEVELOPER_SIGNUP_URL == "https://developer.nlr.gov/signup"
+    assert constants.GOES_AGGREGATED_URL.startswith(constants.DEVELOPER_BASE_URL)
+    assert constants.GOES_TMY_URL.startswith(constants.DEVELOPER_BASE_URL)
+    assert "developer.nrel.gov" not in constants.GOES_AGGREGATED_URL
+    assert "developer.nrel.gov" not in constants.GOES_TMY_URL
 
 
 @pytest.mark.parametrize(
